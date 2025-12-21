@@ -5,13 +5,19 @@ mod grid;
 mod parser;
 mod error;
 mod display;
-
+use std::env;
+use std::fs;
 fn main() {
-    let mut my_grid = Grid {
-        grid: [[0; 9]; 9],
-    };
+    let args: Vec<String> = env::args().collect();
 
-    my_grid.add_to_grid(0,0, 5);
+    if args.len() != 2 {
+        panic!("filepath")
+    }
+    let contents = fs::read_to_string(args[1].clone())
+        .expect("Should have been able to read the file");
+    let mut my_grid = Grid {
+        grid: parser::parser_file(&contents, Some('.')),
+    };
 
     display::display_grid(my_grid.get_grid());
 }
