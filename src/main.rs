@@ -21,4 +21,7 @@ fn main() {
     };
     solver::is_valid(&mut my_grid, 0);
     display::display_grid(my_grid.get_grid());
+
+    display::init_window(&my_grid)
+
 }
