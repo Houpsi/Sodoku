@@ -7,6 +7,7 @@ mod error;
 mod display;
 use std::env;
 use std::fs;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -18,6 +19,6 @@ fn main() {
     let mut my_grid = Grid {
         grid: parser::parser_file(&contents, Some('.')),
     };
-
+    solver::is_valid(&mut my_grid, 0);
     display::display_grid(my_grid.get_grid());
 }
