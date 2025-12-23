@@ -1,9 +1,11 @@
 // Display proprement la grid
-// pourquoi pas faire de l'ui
+// pourquoi pas faire de l'ui with piston
 
-use piston_window::{clear, text, G2d, Glyphs, PistonWindow, Transformed, WindowSettings};
+use piston_window::{clear, rectangle, text, Button, G2d, Glyphs, MouseCursorEvent, MouseRelativeEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
+use crate::button::ButtonRect;
+use rfd::FileDialog;
 
 pub fn init_window(grid: &Grid) {
     let mut window: PistonWindow =
@@ -11,9 +13,30 @@ pub fn init_window(grid: &Grid) {
             .exit_on_esc(true)
             .build()
             .unwrap();
-
+    let mut cursor = [0.0, 0.0];
     let mut glyphs = window.load_font("font.ttf").unwrap();
+    let mut pos_mousse: [f64; 2] = [0.0, 0.0];
+    let solve_button = ButtonRect {
+        x: 150.0,
+        y: 20.0,
+        w: 115.0,
+        h: 35.0,
+        label: "Solve".to_string(),
+    };
+
     while let Some(e) = window.next() {
+        e.mouse_cursor(|pos| {
+            pos_mousse = pos;
+        });
+        if let Some(Button::Mouse(button)) = e.press_args() {
+            if solve_button.is_hovered(pos_mousse) {
+                let files = FileDialog::new()
+                    .add_filter("text", &["txt"])
+                    .set_directory("/")
+                    .pick_file();
+                println!("Souris sur le bouton !");
+            }
+        }
 
         window.draw_2d(&e, |c, g, device| {
             clear([1.0; 4], g);
@@ -27,6 +50,7 @@ pub fn init_window(grid: &Grid) {
                 "bonjour",
             );
             display_grid_piston(grid, &c, g, &mut glyphs);
+            solve_button.draw(&c, g, &mut glyphs, solve_button.is_hovered(pos_mousse));
 
             glyphs.factory.encoder.flush(device);
         });
@@ -86,6 +110,3 @@ pub fn draw_text(
         .unwrap();
 }
 
-fn create_button() {
-
-}

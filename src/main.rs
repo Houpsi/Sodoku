@@ -5,6 +5,8 @@ mod grid;
 mod parser;
 mod error;
 mod display;
+mod button;
+
 use std::env;
 use std::fs;
 
