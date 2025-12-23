@@ -7,6 +7,8 @@ pub struct ButtonRect {
     pub w: f64,
     pub h: f64,
     pub label: String,
+    pub color_hovered : Color,
+    pub color : Color,
 }
 
 impl ButtonRect {
@@ -19,9 +21,9 @@ impl ButtonRect {
 
     pub fn draw(&self, c: &piston_window::Context, g: &mut G2d, glyphs: &mut Glyphs, hovered: bool) {
         let color: Color = if hovered {
-            [0.7, 0.7, 0.7, 1.0]
+            self.color_hovered
         } else {
-            [0.5, 0.5, 0.5, 1.0]
+            self.color
         };
         rectangle(color, [self.x, self.y, self.w, self.h], c.transform, g);
 

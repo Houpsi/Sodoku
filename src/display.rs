@@ -13,15 +13,25 @@ pub fn init_window(grid: &Grid) {
             .exit_on_esc(true)
             .build()
             .unwrap();
-    let mut cursor = [0.0, 0.0];
     let mut glyphs = window.load_font("font.ttf").unwrap();
     let mut pos_mousse: [f64; 2] = [0.0, 0.0];
-    let solve_button = ButtonRect {
-        x: 150.0,
+    let choose_file = ButtonRect {
+        x: 00.0,
         y: 20.0,
-        w: 115.0,
+        w: 85.0,
+        h: 35.0,
+        label: "file".to_string(),
+        color_hovered: [0.7, 0.7, 0.7, 1.0],
+        color: [0.5, 0.5, 0.5, 1.0],
+    };
+    let solve_sodoku = ButtonRect {
+        x: 100.0,
+        y: 20.0,
+        w: 100.0,
         h: 35.0,
         label: "Solve".to_string(),
+        color_hovered: [1.0, 0.0, 0.0, 1.0],
+        color: [0.0, 1.0, 0.0, 1.0],
     };
 
     while let Some(e) = window.next() {
@@ -29,28 +39,32 @@ pub fn init_window(grid: &Grid) {
             pos_mousse = pos;
         });
         if let Some(Button::Mouse(button)) = e.press_args() {
-            if solve_button.is_hovered(pos_mousse) {
+            if choose_file.is_hovered(pos_mousse) {
                 let files = FileDialog::new()
                     .add_filter("text", &["txt"])
-                    .set_directory("/")
+                    .set_directory("/home/heleneh")// TO DO change the path to a personalize one
                     .pick_file();
-                println!("Souris sur le bouton !");
+                print!("file choose : {:?}", files);
+            }
+            if solve_sodoku.is_hovered(pos_mousse) {
+
             }
         }
 
         window.draw_2d(&e, |c, g, device| {
             clear([1.0; 4], g);
 
-            draw_text(
-                &c,
-                g,
-                &mut glyphs,
-                [0.0, 0.0, 0.0, 1.0],
-                [3, 20],
-                "bonjour",
-            );
+            // draw_text(
+            //     &c,
+            //     g,
+            //     &mut glyphs,
+            //     [0.0, 0.0, 0.0, 1.0],
+            //     [3, 20],
+            //     "bonjour",
+            // );
             display_grid_piston(grid, &c, g, &mut glyphs);
-            solve_button.draw(&c, g, &mut glyphs, solve_button.is_hovered(pos_mousse));
+            choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(pos_mousse));
+            solve_sodoku.draw(&c, g, &mut glyphs, choose_file.is_hovered(pos_mousse));
 
             glyphs.factory.encoder.flush(device);
         });
