@@ -1,13 +1,16 @@
 // Display proprement la grid
 // pourquoi pas faire de l'ui with piston
 
+use std::fs;
+use std::path::PathBuf;
 use piston_window::{clear, rectangle, text, Button, G2d, Glyphs, MouseCursorEvent, MouseRelativeEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
 use rfd::FileDialog;
+use crate::{display, parser, solver};
 
-pub fn init_window(grid: &Grid) {
+pub fn init_window() {
     let mut window: PistonWindow =
         WindowSettings::new("Sudoku Solver", [640, 480])
             .exit_on_esc(true)
@@ -15,6 +18,10 @@ pub fn init_window(grid: &Grid) {
             .unwrap();
     let mut glyphs = window.load_font("font.ttf").unwrap();
     let mut pos_mousse: [f64; 2] = [0.0, 0.0];
+    let mut grid= Grid {
+        grid : [[0; 9]; 9],
+    };
+    let mut file_chosen: Option<PathBuf> = None;
     let choose_file = ButtonRect {
         x: 00.0,
         y: 20.0,
@@ -42,29 +49,29 @@ pub fn init_window(grid: &Grid) {
             if choose_file.is_hovered(pos_mousse) {
                 let files = FileDialog::new()
                     .add_filter("text", &["txt"])
-                    .set_directory("/home/heleneh")// TO DO change the path to a personalize one
+                    .set_directory("/home/heleneh/Documents")// TO DO change the path to a personalize one
                     .pick_file();
                 print!("file choose : {:?}", files);
+                file_chosen = files;
             }
-            if solve_sodoku.is_hovered(pos_mousse) {
-
+            if solve_sodoku.is_hovered(pos_mousse)  {
+                // grid = read_file(file_chosen);
+                if let Some(new_grid) = read_file(file_chosen.clone()) {
+                    grid = new_grid;
+                }
             }
         }
 
         window.draw_2d(&e, |c, g, device| {
             clear([1.0; 4], g);
+            // if grid {
+            //     launch_solver(grid, &c, g, &mut glyphs);
+            // }
 
-            // draw_text(
-            //     &c,
-            //     g,
-            //     &mut glyphs,
-            //     [0.0, 0.0, 0.0, 1.0],
-            //     [3, 20],
-            //     "bonjour",
-            // );
-            display_grid_piston(grid, &c, g, &mut glyphs);
+            display_grid_piston(&grid, &c, g, &mut glyphs);
+
             choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(pos_mousse));
-            solve_sodoku.draw(&c, g, &mut glyphs, choose_file.is_hovered(pos_mousse));
+            solve_sodoku.draw(&c, g, &mut glyphs, solve_sodoku.is_hovered(pos_mousse));
 
             glyphs.factory.encoder.flush(device);
         });
@@ -124,3 +131,24 @@ pub fn draw_text(
         .unwrap();
 }
 
+pub fn read_file(file_path: Option<PathBuf>) -> Option<Grid> {
+    let file_path = match file_path {
+        Some(path) => path,
+        None => {
+            eprintln!("Aucun fichier sélectionné");
+            return None;
+        }
+    };
+    let contents = fs::read_to_string(file_path.clone())
+        .expect("Should have been able to read the file");
+    let mut my_grid = Grid {
+        grid: parser::parser_file(&contents, Some('.')),
+    };
+    solver::is_valid(&mut my_grid, 0);
+    Some(my_grid)
+}
+
+pub fn launch_solver(my_grid: Grid, c: &piston_window::Context, g: &mut G2d, glyphs: &mut Glyphs) {
+    display::display_grid(my_grid.get_grid());
+    display_grid_piston(&my_grid, &c, g, glyphs);
+}
