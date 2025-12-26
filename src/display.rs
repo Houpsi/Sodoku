@@ -3,12 +3,12 @@
 
 use std::fs;
 use std::path::PathBuf;
-use piston_window::{clear, rectangle, text, Button, G2d, Glyphs, MouseCursorEvent, MouseRelativeEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
+use piston_window::{clear, text, Button, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
 use rfd::FileDialog;
-use crate::{display, parser, solver};
+use crate::{parser, solver};
 
 pub fn init_window() {
     let mut window: PistonWindow =
@@ -45,7 +45,7 @@ pub fn init_window() {
         e.mouse_cursor(|pos| {
             pos_mousse = pos;
         });
-        if let Some(Button::Mouse(button)) = e.press_args() {
+        if let Some(Button::Mouse(_button)) = e.press_args() {
             if choose_file.is_hovered(pos_mousse) {
                 let files = FileDialog::new()
                     .add_filter("text", &["txt"])
@@ -55,7 +55,6 @@ pub fn init_window() {
                 file_chosen = files;
             }
             if solve_sodoku.is_hovered(pos_mousse)  {
-                // grid = read_file(file_chosen);
                 if let Some(new_grid) = read_file(file_chosen.clone()) {
                     grid = new_grid;
                 }
@@ -64,9 +63,6 @@ pub fn init_window() {
 
         window.draw_2d(&e, |c, g, device| {
             clear([1.0; 4], g);
-            // if grid {
-            //     launch_solver(grid, &c, g, &mut glyphs);
-            // }
 
             display_grid_piston(&grid, &c, g, &mut glyphs);
 
@@ -93,6 +89,9 @@ pub fn display_grid(grid: [[u32; 9]; 9]) {
     }
 }
 pub fn display_grid_piston(grid: &Grid, c: &piston_window::Context,  g: &mut G2d, glyphs: &mut Glyphs,) {
+    if !check_grid_not_empty(grid.get_grid()) {
+        return;
+    }
     let mut offset_y = 130.0;
     for (y, row) in grid.get_grid().iter().enumerate() {
         let mut offset_x = 230.0;
@@ -142,13 +141,29 @@ pub fn read_file(file_path: Option<PathBuf>) -> Option<Grid> {
     let contents = fs::read_to_string(file_path.clone())
         .expect("Should have been able to read the file");
     let mut my_grid = Grid {
-        grid: parser::parser_file(&contents, Some('.')),
+        grid: [[0; 9]; 9],
     };
-    solver::is_valid(&mut my_grid, 0);
+
+    match parser::parser_file(&contents, Some('.')) {
+        Ok(grid) => {
+            my_grid.grid = grid;
+            solver::is_valid(&mut my_grid, 0);
+        }
+        Err(err) => {
+            eprintln!("Error parsing : {}", err);
+        }
+    }
+
     Some(my_grid)
 }
 
-pub fn launch_solver(my_grid: Grid, c: &piston_window::Context, g: &mut G2d, glyphs: &mut Glyphs) {
-    display::display_grid(my_grid.get_grid());
-    display_grid_piston(&my_grid, &c, g, glyphs);
+pub fn check_grid_not_empty(grid: [[u32; 9]; 9]) -> bool {
+    for (_y, row) in grid.iter().enumerate() {
+        for (x, cell) in row.iter().enumerate() {
+            if *cell != 0 {
+                return true
+            }
+        }
+    }
+    false
 }

@@ -3,7 +3,7 @@
 
 use crate::error::check_number;
 
-pub fn parser_file(content: &str, character: Option<char> ) -> [[u32; 9]; 9] {
+pub fn parser_file(content: &str, character: Option<char> ) -> Result<[[u32; 9]; 9], String> {
     let mut grid: [[u32; 9]; 9] = [[0; 9]; 9];
     let empty = character.unwrap_or('.');
     let mut x:usize = 0;
@@ -15,7 +15,7 @@ pub fn parser_file(content: &str, character: Option<char> ) -> [[u32; 9]; 9] {
             continue
         }
         if !check_number(c as u32) {
-            panic!("Invalid number: {}", c)
+            return Err("Grid is too big (more than 9 lines or columns)".to_string());
         }
         if c == ' ' {
             continue
@@ -26,10 +26,13 @@ pub fn parser_file(content: &str, character: Option<char> ) -> [[u32; 9]; 9] {
             continue
         }
         if !c.is_ascii_digit() {
-            panic!("{} is not a number", c)
+            return Err("There is a character who's not a number ".to_string());
         }
-        grid[x][y] = c.to_digit(10).expect("Invalid digit") as u32;
+        let value = c
+            .to_digit(10)
+            .ok_or(format!("Impossible conversion '{}' in number", c))?;
+        grid[x][y] = value;
         y += 1;
     }
-    return grid;
+    Ok(grid)
 }

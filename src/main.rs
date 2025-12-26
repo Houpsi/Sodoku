@@ -7,9 +7,6 @@ mod error;
 mod display;
 mod button;
 
-use std::env;
-use std::fs;
-
 fn main() {
     display::init_window()
 
