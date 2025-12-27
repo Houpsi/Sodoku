@@ -2,6 +2,7 @@
 
 pub struct Grid {
     pub grid: [[u32; 9]; 9],
+    pub original: [[bool; 9]; 9],
 }
 
 impl Grid {

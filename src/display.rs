@@ -3,7 +3,7 @@
 
 use std::fs;
 use std::path::PathBuf;
-use piston_window::{clear, text, Button, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
+use piston_window::{clear, line, text, Button, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
@@ -12,7 +12,7 @@ use crate::{parser, solver, app_state};
 use crate::app_state::AppState;
 
 const GRID_SIZE: usize = 9;
-const CELL_SIZE: f64 = 20.0;
+const CELL_SIZE: f64 = 25.0;
 
 pub fn init_window() {
     // let mut click_on_file: bool = false;
@@ -96,6 +96,7 @@ pub fn init_window() {
                     "The file is not in the correct format",
                 );
             }
+            draw_grid_lines(&c, g);
             display_grid_piston(&app_state.get_grid(), &c, g, &mut glyphs);
 
             choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(app_state.get_mousse_pos()));
@@ -121,6 +122,7 @@ pub fn display_grid(grid: [[u32; 9]; 9]) {
         }
     }
 }
+
 pub fn display_grid_piston(grid: &Grid, c: &piston_window::Context,  g: &mut G2d, glyphs: &mut Glyphs,) {
     if !grid_has_values(&grid.get_grid()) {
         return;
@@ -129,14 +131,20 @@ pub fn display_grid_piston(grid: &Grid, c: &piston_window::Context,  g: &mut G2d
     for (y, row) in grid.get_grid().iter().enumerate() {
         let mut offset_x = 230.0;
         for (x, cell) in row.iter().enumerate() {
+            let color = if grid.original[y][x] {
+                [0.0, 0.0, 0.0, 1.0] 
+            } else {
+                [0.2, 0.2, 0.8, 1.0]
+            };
+
             draw_text(
                 &c,
                 g,
                 glyphs,
-                [0.0, 0.0, 0.0, 1.0],
+                color,
                 [
-                    (x as f64 * 20.0 + offset_x) as u32,
-                    (y as f64 * 20.0 + offset_y) as u32,
+                    (x as f64 * 23.0 + offset_x) as u32,
+                    (y as f64 * 22.0 + offset_y) as u32,
                 ],
                 &*cell.to_string(),
             );
@@ -147,6 +155,35 @@ pub fn display_grid_piston(grid: &Grid, c: &piston_window::Context,  g: &mut G2d
         if y == 2 || y == 5 {
             offset_y += 10.0;
         }
+    }
+}
+fn draw_grid_lines(c: &piston_window::Context, g: &mut G2d) {
+    let start_x = 225.0;
+    let start_y = 109.0;
+    let grid_size = CELL_SIZE * GRID_SIZE as f64;
+
+    for i in 0..=GRID_SIZE {
+        let thickness = if i % 3 == 0 { 2.0 } else { 1.0 };
+
+        // Vertical lines
+        let x = start_x + i as f64 * CELL_SIZE;
+        line(
+            [0.0, 0.0, 0.0, 1.0],
+            thickness,
+            [x, start_y, x, start_y + grid_size],
+            c.transform,
+            g,
+        );
+
+        // Horizontal lines
+        let y = start_y + i as f64 * CELL_SIZE;
+        line(
+            [0.0, 0.0, 0.0, 1.0],
+            thickness,
+            [start_x, y, start_x + grid_size, y],
+            c.transform,
+            g,
+        );
     }
 }
 
@@ -169,8 +206,10 @@ fn read_file(path: &PathBuf) -> Result<Grid, String> {
 
     let grid = parser::parser_file(&contents, Some('.'))
         .map_err(|e| e.to_string())?;
+    let original = parser::parser_ori(&contents, Some('.'))
+        .map_err(|e| e.to_string())?;
 
-    let mut grid = Grid { grid };
+    let mut grid = Grid { grid, original };
     solver::is_valid(&mut grid, 0);
 
     Ok(grid)

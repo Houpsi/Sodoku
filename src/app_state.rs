@@ -11,7 +11,7 @@ pub struct AppState {
 impl AppState {
     pub fn new() -> Self {
         Self {
-            grid: Grid { grid: [[0; 9]; 9] },
+            grid: Grid { grid: [[0; 9]; 9], original: [[false; 9]; 9] },
             file_chosen: None,
             mouse_pos: [0.0, 0.0],
             click_on_file: false,
