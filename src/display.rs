@@ -23,7 +23,7 @@ pub fn init_window() {
     };
     let mut file_chosen: Option<PathBuf> = None;
     let choose_file = ButtonRect {
-        x: 00.0,
+        x: 5.0,
         y: 20.0,
         w: 85.0,
         h: 35.0,
@@ -39,6 +39,15 @@ pub fn init_window() {
         label: "Solve".to_string(),
         color_hovered: [1.0, 0.0, 0.0, 1.0],
         color: [0.0, 1.0, 0.0, 1.0],
+    };
+    let clear_grid = ButtonRect {
+        x: 200.0,
+        y: 20.0,
+        w: 100.0,
+        h: 35.0,
+        label: "Clear".to_string(),
+        color_hovered: [1.0, 1.0, 0.0, 1.0],
+        color: [0.0, 1.0, 1.0, 1.0],
     };
 
     while let Some(e) = window.next() {
@@ -59,6 +68,9 @@ pub fn init_window() {
                     grid = new_grid;
                 }
             }
+            if clear_grid.is_hovered(pos_mousse)  {
+                grid.set_grid([[0; 9]; 9]);
+            }
         }
 
         window.draw_2d(&e, |c, g, device| {
@@ -68,6 +80,7 @@ pub fn init_window() {
 
             choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(pos_mousse));
             solve_sodoku.draw(&c, g, &mut glyphs, solve_sodoku.is_hovered(pos_mousse));
+            clear_grid.draw(&c, g, &mut glyphs, clear_grid.is_hovered(pos_mousse));
 
             glyphs.factory.encoder.flush(device);
         });
