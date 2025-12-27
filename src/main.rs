@@ -6,6 +6,7 @@ mod parser;
 mod error;
 mod display;
 mod button;
+mod app_state;
 
 fn main() {
     display::init_window()

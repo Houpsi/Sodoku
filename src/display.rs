@@ -8,20 +8,22 @@ use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
 use rfd::FileDialog;
-use crate::{parser, solver};
+use crate::{parser, solver, app_state};
+use crate::app_state::AppState;
+
+const GRID_SIZE: usize = 9;
+const CELL_SIZE: f64 = 20.0;
 
 pub fn init_window() {
+    // let mut click_on_file: bool = false;
     let mut window: PistonWindow =
         WindowSettings::new("Sudoku Solver", [640, 480])
             .exit_on_esc(true)
             .build()
             .unwrap();
     let mut glyphs = window.load_font("font.ttf").unwrap();
-    let mut pos_mousse: [f64; 2] = [0.0, 0.0];
-    let mut grid= Grid {
-        grid : [[0; 9]; 9],
-    };
-    let mut file_chosen: Option<PathBuf> = None;
+
+    let mut app_state = AppState::new();
     let choose_file = ButtonRect {
         x: 5.0,
         y: 20.0,
@@ -31,7 +33,7 @@ pub fn init_window() {
         color_hovered: [0.7, 0.7, 0.7, 1.0],
         color: [0.5, 0.5, 0.5, 1.0],
     };
-    let solve_sodoku = ButtonRect {
+    let solve_sudoku = ButtonRect {
         x: 100.0,
         y: 20.0,
         w: 100.0,
@@ -52,35 +54,53 @@ pub fn init_window() {
 
     while let Some(e) = window.next() {
         e.mouse_cursor(|pos| {
-            pos_mousse = pos;
+            app_state.set_mousse_pos(pos)
         });
         if let Some(Button::Mouse(_button)) = e.press_args() {
-            if choose_file.is_hovered(pos_mousse) {
+            if choose_file.is_hovered(app_state.get_mousse_pos()) {
                 let files = FileDialog::new()
                     .add_filter("text", &["txt"])
                     .set_directory("/home/heleneh/Documents")// TO DO change the path to a personalize one
                     .pick_file();
                 print!("file choose : {:?}", files);
-                file_chosen = files;
+                app_state.set_file_chosen(files);
+                app_state.set_click_on_file(true);
             }
-            if solve_sodoku.is_hovered(pos_mousse)  {
-                if let Some(new_grid) = read_file(file_chosen.clone()) {
-                    grid = new_grid;
+            if solve_sudoku.is_hovered(app_state.get_mousse_pos())  {
+                if let Some(path) = &app_state.get_file_chosen() {
+                    match read_file(path) {
+                        Ok(new_grid) => app_state.set_grid(new_grid),
+                        Err(err) => eprintln!("{}", err),
+                    }
                 }
             }
-            if clear_grid.is_hovered(pos_mousse)  {
-                grid.set_grid([[0; 9]; 9]);
+            if clear_grid.is_hovered(app_state.get_mousse_pos())  {
+                app_state.grid_mut().set_grid([[0; 9]; 9]);
+                app_state.set_click_on_file(false);
             }
         }
 
         window.draw_2d(&e, |c, g, device| {
             clear([1.0; 4], g);
 
-            display_grid_piston(&grid, &c, g, &mut glyphs);
+            if !grid_has_values(&app_state.get_grid().get_grid()) && app_state.get_file_chosen().is_some() && app_state.get_click_on_file() {
+                draw_text(
+                    &c,
+                    g,
+                    &mut glyphs,
+                    [1.0, 0.0, 0.0, 1.0],
+                    [
+                        200,
+                        50,
+                    ],
+                    "The file is not in the correct format",
+                );
+            }
+            display_grid_piston(&app_state.get_grid(), &c, g, &mut glyphs);
 
-            choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(pos_mousse));
-            solve_sodoku.draw(&c, g, &mut glyphs, solve_sodoku.is_hovered(pos_mousse));
-            clear_grid.draw(&c, g, &mut glyphs, clear_grid.is_hovered(pos_mousse));
+            choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(app_state.get_mousse_pos()));
+            solve_sudoku.draw(&c, g, &mut glyphs, solve_sudoku.is_hovered(app_state.get_mousse_pos()));
+            clear_grid.draw(&c, g, &mut glyphs, clear_grid.is_hovered(app_state.get_mousse_pos()));
 
             glyphs.factory.encoder.flush(device);
         });
@@ -102,7 +122,7 @@ pub fn display_grid(grid: [[u32; 9]; 9]) {
     }
 }
 pub fn display_grid_piston(grid: &Grid, c: &piston_window::Context,  g: &mut G2d, glyphs: &mut Glyphs,) {
-    if !check_grid_not_empty(grid.get_grid()) {
+    if !grid_has_values(&grid.get_grid()) {
         return;
     }
     let mut offset_y = 130.0;
@@ -143,40 +163,19 @@ pub fn draw_text(
         .unwrap();
 }
 
-pub fn read_file(file_path: Option<PathBuf>) -> Option<Grid> {
-    let file_path = match file_path {
-        Some(path) => path,
-        None => {
-            eprintln!("Aucun fichier sélectionné");
-            return None;
-        }
-    };
-    let contents = fs::read_to_string(file_path.clone())
-        .expect("Should have been able to read the file");
-    let mut my_grid = Grid {
-        grid: [[0; 9]; 9],
-    };
+fn read_file(path: &PathBuf) -> Result<Grid, String> {
+    let contents = fs::read_to_string(path)
+        .map_err(|e| e.to_string())?;
 
-    match parser::parser_file(&contents, Some('.')) {
-        Ok(grid) => {
-            my_grid.grid = grid;
-            solver::is_valid(&mut my_grid, 0);
-        }
-        Err(err) => {
-            eprintln!("Error parsing : {}", err);
-        }
-    }
+    let grid = parser::parser_file(&contents, Some('.'))
+        .map_err(|e| e.to_string())?;
 
-    Some(my_grid)
+    let mut grid = Grid { grid };
+    solver::is_valid(&mut grid, 0);
+
+    Ok(grid)
 }
 
-pub fn check_grid_not_empty(grid: [[u32; 9]; 9]) -> bool {
-    for (_y, row) in grid.iter().enumerate() {
-        for (x, cell) in row.iter().enumerate() {
-            if *cell != 0 {
-                return true
-            }
-        }
-    }
-    false
+fn grid_has_values(grid: &[[u32; 9]; 9]) -> bool {
+    grid.iter().flatten().any(|&cell| cell != 0)
 }
