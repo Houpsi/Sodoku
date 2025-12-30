@@ -9,6 +9,9 @@ impl Grid {
     pub fn set_grid(&mut self, grid: [[u32 ; 9]; 9]) {
         self.grid = grid;
     }
+    pub fn set_grid_ori(&mut self, ori: [[bool ; 9]; 9]) {
+        self.original = ori;
+    }
 
     pub fn get_grid(&self) -> [[u32 ; 9]; 9] {
         self.grid

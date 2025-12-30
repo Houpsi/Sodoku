@@ -68,6 +68,7 @@ pub fn init_window() {
 
             if clear_btn.is_hovered(mouse) {
                 app_state.grid_mut().set_grid([[0; 9]; 9]);
+                app_state.grid_mut().set_grid_ori([[false; 9]; 9]);
                 app_state.set_click_on_file(false);
             }
         }
@@ -100,10 +101,6 @@ fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
 }
 
 fn draw_grid(grid: &Grid, c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
-    // if !grid_has_values(&grid.get_grid()) {
-    //     return;
-    // }
-
     let grid_px = CELL_SIZE * GRID_SIZE as f64;
     let start_x = (WINDOW_W - grid_px) / 2.0;
     let start_y = 115.0;
