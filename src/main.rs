@@ -5,20 +5,10 @@ mod grid;
 mod parser;
 mod error;
 mod display;
-use std::env;
-use std::fs;
+mod button;
+mod app_state;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    display::init_window()
 
-    if args.len() != 2 {
-        panic!("filepath")
-    }
-    let contents = fs::read_to_string(args[1].clone())
-        .expect("Should have been able to read the file");
-    let mut my_grid = Grid {
-        grid: parser::parser_file(&contents, Some('.')),
-    };
-    solver::is_valid(&mut my_grid, 0);
-    display::display_grid(my_grid.get_grid());
 }

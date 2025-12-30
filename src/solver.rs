@@ -15,7 +15,7 @@ pub fn is_valid(grid: &mut Grid, pos: usize) -> bool  {
         return is_valid(grid, pos + 1)
     }
     for k in 1..=9 {
-        if (!exist_line(&grid_, x, k) && !exist_column(&grid_, y, k) && !exist_cell(&grid_, x, y, k)) {
+        if !exist_line(&grid_, x, k) && !exist_column(&grid_, y, k) && !exist_cell(&grid_, x, y, k) {
             grid.add_to_grid(x, y, k);
             if is_valid(grid, pos + 1) {
                 return true;

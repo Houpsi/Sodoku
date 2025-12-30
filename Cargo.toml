@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 grid = "1.0.0"
 log = "0.4.29"
+piston_window = "0.131.0"
+rfd = "0.16.0"
