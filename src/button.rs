@@ -37,4 +37,16 @@ impl ButtonRect {
             )
             .unwrap();
     }
+
+    pub fn flat(x: f64, y: f64, w: f64, h: f64, label: &str) -> Self {
+        Self {
+            x,
+            y,
+            w,
+            h,
+            label: label.to_string(),
+            color: [0.61, 0.30, 0.8, 1.0],
+            color_hovered: [0.87, 0.66, 1.0, 1.0],
+        }
+    }
 }
