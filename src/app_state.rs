@@ -6,6 +6,7 @@ pub struct AppState {
     file_chosen: Option<PathBuf>,
     mouse_pos: [f64; 2],
     click_on_file: bool,
+    selected_cell: Option<(usize, usize)>,
 }
 
 impl AppState {
@@ -15,6 +16,7 @@ impl AppState {
             file_chosen: None,
             mouse_pos: [0.0, 0.0],
             click_on_file: false,
+            selected_cell: None,
         }
     }
 
@@ -30,9 +32,6 @@ impl AppState {
     pub fn get_file_chosen(&self)-> &Option<PathBuf> {
         &self.file_chosen
     }
-    pub fn get_click_on_file(&self)-> bool {
-        self.click_on_file
-    }
 
     pub fn set_mousse_pos(&mut self, new_pos: [f64; 2]) {
         self.mouse_pos = new_pos
@@ -45,5 +44,15 @@ impl AppState {
     }
     pub fn set_click_on_file(&mut self, new_state: bool) {
         self.click_on_file = new_state
+    }
+
+    pub fn set_selected_cell(&mut self, x: usize, y: usize) {
+        self.selected_cell = Some((x, y));
+    }
+    pub fn clear_selected_cell(&mut self) {
+        self.selected_cell = None;
+    }
+    pub fn selected_cell(&self) -> Option<(usize, usize)> {
+        self.selected_cell
     }
 }
