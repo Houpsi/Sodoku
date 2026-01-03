@@ -61,8 +61,7 @@ pub fn parser_ori(content: &str, character: Option<char> ) -> Result<[[bool; 9];
         if !c.is_ascii_digit() {
             return Err("There is a character who's not a number ".to_string());
         }
-        let value = c
-            .to_digit(10)
+        c.to_digit(10)
             .ok_or(format!("Impossible conversion '{}' in number", c))?;
         original[x][y] = true;
         y += 1;

@@ -1,24 +1,19 @@
-// Display proprement la grid
-// pourquoi pas faire de l'ui with piston
-
 use std::fs;
 use std::path::PathBuf;
 use piston_window::{clear, line, rectangle, text, Button, Context, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
-use rfd::FileDialog;
-use crate::{parser, solver, app_state};
+use crate::{parser, solver};
 use crate::app_state::AppState;
+use crate::play_state::{display_play, press_button_play, Number};
+use crate::solver_state::{display_solver, press_button_solver};
 
-// const GRID_SIZE: usize = 9;
-// const CELL_SIZE: f64 = 25.0;
-
-const WINDOW_W: f64 = 640.0;
-const WINDOW_H: f64 = 480.0;
+pub(crate) const WINDOW_W: f64 = 800.0;
+const WINDOW_H: f64 = 500.0;
 
 const GRID_SIZE: usize = 9;
-const CELL_SIZE: f64 = 40.0;
+pub(crate) const CELL_SIZE: f64 = 40.0;
 
 // Colors
 const BG_COLOR: Color = [0.96, 0.97, 0.98, 1.0];
@@ -31,8 +26,15 @@ const CELL_ORIGINAL: Color = [0.92, 0.92, 0.94, 1.0];
 const TEXT_ORIGINAL: Color = [0.1, 0.1, 0.1, 1.0];
 const TEXT_SOLVED: Color = [0.25, 0.45, 0.85, 1.0];
 
+#[derive(PartialEq)]
+enum State {
+    Menu,
+    Solver,
+    Play,
+}
 
 pub fn init_window() {
+    let mut state = State::Menu;
     let mut window: PistonWindow =
         WindowSettings::new("Sudoku Solver", [WINDOW_W as u32, WINDOW_H as u32])
             .exit_on_esc(true)
@@ -42,47 +44,65 @@ pub fn init_window() {
     let mut glyphs = window.load_font("font.ttf").unwrap();
     let mut app_state = AppState::new();
 
-    let choose_file = ButtonRect::flat(40.0, 60.0, 110.0, 38.0, "Load");
-    let solve = ButtonRect::flat(160.0, 60.0, 110.0, 38.0, "Solve");
-    let clear_btn = ButtonRect::flat(280.0, 60.0, 110.0, 38.0, "Clear");
+    let choose_file = ButtonRect::flat(40.0, 60.0, 110.0, 38.0, "Load", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+    let solve = ButtonRect::flat(160.0, 60.0, 110.0, 38.0, "Solve", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+    let clear_btn = ButtonRect::flat(280.0, 60.0, 110.0, 38.0, "Clear", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
+    let chose_solver = ButtonRect::flat((WINDOW_W / 2.0) - 75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+    let chose_play = ButtonRect::flat((WINDOW_W / 2.0) - 55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+
+    let mut numbers = Number::new();
+    numbers.fill_vector();
+    
     while let Some(e) = window.next() {
         e.mouse_cursor(|pos| app_state.set_mousse_pos(pos));
 
         if let Some(Button::Mouse(_)) = e.press_args() {
             let mouse = app_state.get_mousse_pos();
 
-            if choose_file.is_hovered(mouse) {
-                let file = FileDialog::new().add_filter("text", &["txt"]).pick_file();
-                app_state.set_file_chosen(file);
-                app_state.set_click_on_file(true);
-            }
-
-            if solve.is_hovered(mouse) {
-                if let Some(path) = app_state.get_file_chosen() {
-                    if let Ok(grid) = read_file(path) {
-                        app_state.set_grid(grid);
+            match state {
+                State::Menu => {
+                    if chose_play.is_hovered(mouse) {
+                        state = State::Play
+                    }
+                    if chose_solver.is_hovered(mouse) {
+                        state = State::Solver
                     }
                 }
-            }
-
-            if clear_btn.is_hovered(mouse) {
-                app_state.grid_mut().set_grid([[0; 9]; 9]);
-                app_state.grid_mut().set_grid_ori([[false; 9]; 9]);
-                app_state.set_click_on_file(false);
+                State::Solver => {
+                    press_button_solver(&choose_file, &solve, &clear_btn, mouse, &mut app_state);
+                }
+                State::Play => {
+                    if let Some((x, y)) = get_cell_from_mouse(mouse) {
+                        app_state.set_selected_cell(x, y);
+                    }
+                    if app_state.selected_cell().is_some() {
+                        press_button_play(&numbers, mouse, &mut app_state);
+                    }
+                }
             }
         }
 
         window.draw_2d(&e, |c, g, device| {
             clear(BG_COLOR, g);
 
-            draw_title(&c, g, &mut glyphs);
-            draw_grid(&app_state.get_grid(), &c, g, &mut glyphs);
+            if state == State::Menu {
+                draw_title(&c, g, &mut glyphs);
+                chose_play.draw(&c, g, &mut glyphs, chose_play.is_hovered(app_state.get_mousse_pos()));
+                chose_solver.draw(&c, g, &mut glyphs, chose_solver.is_hovered(app_state.get_mousse_pos()));
+            }
 
-            choose_file.draw(&c, g, &mut glyphs, choose_file.is_hovered(app_state.get_mousse_pos()));
-            solve.draw(&c, g, &mut glyphs, solve.is_hovered(app_state.get_mousse_pos()));
-            clear_btn.draw(&c, g, &mut glyphs, clear_btn.is_hovered(app_state.get_mousse_pos()));
 
+            if state == State::Solver {
+                display_solver(&choose_file, &solve, &clear_btn, &mut app_state, &c, g, &mut glyphs);
+            }
+            if state == State::Play {
+                display_play(&numbers,&mut app_state, &c, g, &mut glyphs);
+            }
+
+            if state == State::Play || state == State::Solver {
+                draw_grid(&app_state.get_grid(), &c, g, &mut glyphs, &app_state);
+            }
             glyphs.factory.encoder.flush(device);
         });
     }
@@ -94,15 +114,16 @@ fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
             "Sudoku Solver",
             glyphs,
             &c.draw_state,
-            c.transform.trans(40.0, 35.0),
+            c.transform.trans((WINDOW_W / 2.0) - 130.0, 35.0),
             g,
         )
         .unwrap();
 }
 
-fn draw_grid(grid: &Grid, c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
-    let grid_px = CELL_SIZE * GRID_SIZE as f64;
-    let start_x = (WINDOW_W - grid_px) / 2.0;
+fn draw_grid(grid: &Grid, c: &Context, g: &mut G2d, glyphs: &mut Glyphs, app_state: &AppState) {
+    // let grid_px = CELL_SIZE * GRID_SIZE as f64;
+    // let start_x = (WINDOW_W - grid_px) / 2.0;
+    let start_x = 50.0;
     let start_y = 115.0;
 
     for y in 0..GRID_SIZE {
@@ -146,6 +167,17 @@ fn draw_grid(grid: &Grid, c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
         }
     }
 
+    if let Some((sx, sy)) = app_state.selected_cell() {
+        let x = start_x + sx as f64 * CELL_SIZE;
+        let y = start_y + sy as f64 * CELL_SIZE;
+
+        rectangle(
+            [0.8, 0.85, 1.0, 0.6],
+            [x, y, CELL_SIZE, CELL_SIZE],
+            c.transform,
+            g,
+        );
+    }
     draw_grid_lines(c, g, start_x, start_y);
 }
 
@@ -167,20 +199,20 @@ fn draw_grid_lines(c: &Context, g: &mut G2d, start_x: f64, start_y: f64) {
     }
 }
 
-pub fn draw_text(
-    ctx: &piston_window::Context,
-    graphics: &mut G2d,
-    glyphs: &mut Glyphs,
-    color: Color,
-    pos: [u32; 2],
-    text: &str,
-) {
-    text::Text::new_color(color, 20)
-        .draw(text, glyphs, &ctx.draw_state, ctx.transform.trans(pos[0] as f64, pos[1] as f64), graphics)
-        .unwrap();
-}
+// pub fn draw_text(
+//     ctx: &piston_window::Context,
+//     graphics: &mut G2d,
+//     glyphs: &mut Glyphs,
+//     color: Color,
+//     pos: [u32; 2],
+//     text: &str,
+// ) {
+//     text::Text::new_color(color, 20)
+//         .draw(text, glyphs, &ctx.draw_state, ctx.transform.trans(pos[0] as f64, pos[1] as f64), graphics)
+//         .unwrap();
+// }
 
-fn read_file(path: &PathBuf) -> Result<Grid, String> {
+pub(crate) fn read_file(path: &PathBuf) -> Result<Grid, String> {
     let contents = fs::read_to_string(path)
         .map_err(|e| e.to_string())?;
 
@@ -195,6 +227,23 @@ fn read_file(path: &PathBuf) -> Result<Grid, String> {
     Ok(grid)
 }
 
-fn grid_has_values(grid: &[[u32; 9]; 9]) -> bool {
-    grid.iter().flatten().any(|&cell| cell != 0)
+fn get_cell_from_mouse(mouse: [f64; 2]) -> Option<(usize, usize)> {
+    let start_x = 50.0;
+    let start_y = 115.0;
+
+    let mx = mouse[0];
+    let my = mouse[1];
+
+    let grid_w = GRID_SIZE as f64 * CELL_SIZE;
+    let grid_h = GRID_SIZE as f64 * CELL_SIZE;
+
+    if mx < start_x || mx >= start_x + grid_w ||
+        my < start_y || my >= start_y + grid_h {
+        return None;
+    }
+
+    let x = ((mx - start_x) / CELL_SIZE) as usize;
+    let y = ((my - start_y) / CELL_SIZE) as usize;
+
+    Some((x, y))
 }
