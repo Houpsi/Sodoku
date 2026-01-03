@@ -3,10 +3,6 @@ use rfd::FileDialog;
 use crate::button::ButtonRect;
 use crate::app_state::AppState;
 
-pub fn init_solver_state() {
-
-}
-
 pub fn press_button_solver(choose_file: &ButtonRect, solve: &ButtonRect, clear_btn: &ButtonRect, mouse: [f64; 2], app_state: &mut AppState) {
     if choose_file.is_hovered(mouse) {
         let file = FileDialog::new().add_filter("text", &["txt"]).pick_file();
