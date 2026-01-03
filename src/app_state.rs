@@ -7,6 +7,7 @@ pub struct AppState {
     mouse_pos: [f64; 2],
     click_on_file: bool,
     selected_cell: Option<(usize, usize)>,
+    sudoku_counter: usize,
 }
 
 impl AppState {
@@ -17,6 +18,7 @@ impl AppState {
             mouse_pos: [0.0, 0.0],
             click_on_file: false,
             selected_cell: None,
+            sudoku_counter: 0,
         }
     }
 
@@ -54,5 +56,12 @@ impl AppState {
     }
     pub fn selected_cell(&self) -> Option<(usize, usize)> {
         self.selected_cell
+    }
+    
+    pub fn sudoku_counter(&self) -> usize {
+        self.sudoku_counter
+    }
+    pub fn set_sudoku_counter(&mut self, new_counter: usize) {
+        self.sudoku_counter = new_counter;
     }
 }

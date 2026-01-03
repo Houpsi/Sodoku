@@ -6,7 +6,7 @@ use crate::grid::Grid;
 use crate::button::ButtonRect;
 use crate::{parser, solver};
 use crate::app_state::AppState;
-use crate::play_state::{display_play, press_button_play, Number};
+use crate::play_state::{display_play, press_button_play, press_number_button, Number};
 use crate::solver_state::{display_solver, press_button_solver};
 
 pub(crate) const WINDOW_W: f64 = 800.0;
@@ -51,9 +51,11 @@ pub fn init_window() {
     let chose_solver = ButtonRect::flat((WINDOW_W / 2.0) - 75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
     let chose_play = ButtonRect::flat((WINDOW_W / 2.0) - 55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
+    let new_sudoku = ButtonRect::flat((WINDOW_W / 1.3), (WINDOW_H / 15.0), 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+
     let mut numbers = Number::new();
     numbers.fill_vector();
-    
+
     while let Some(e) = window.next() {
         e.mouse_cursor(|pos| app_state.set_mousse_pos(pos));
 
@@ -72,13 +74,14 @@ pub fn init_window() {
                 State::Solver => {
                     press_button_solver(&choose_file, &solve, &clear_btn, mouse, &mut app_state);
                 }
-                State::Play => {
+                State::Play => unsafe {
                     if let Some((x, y)) = get_cell_from_mouse(mouse) {
                         app_state.set_selected_cell(x, y);
                     }
                     if app_state.selected_cell().is_some() {
-                        press_button_play(&numbers, mouse, &mut app_state);
+                        press_number_button(&numbers, mouse, &mut app_state);
                     }
+                    press_button_play(mouse, &new_sudoku, &mut app_state);
                 }
             }
         }
@@ -92,12 +95,11 @@ pub fn init_window() {
                 chose_solver.draw(&c, g, &mut glyphs, chose_solver.is_hovered(app_state.get_mousse_pos()));
             }
 
-
             if state == State::Solver {
                 display_solver(&choose_file, &solve, &clear_btn, &mut app_state, &c, g, &mut glyphs);
             }
             if state == State::Play {
-                display_play(&numbers,&mut app_state, &c, g, &mut glyphs);
+                display_play(&numbers,&mut app_state, &c, g, &mut glyphs, &new_sudoku);
             }
 
             if state == State::Play || state == State::Solver {
@@ -223,6 +225,21 @@ pub(crate) fn read_file(path: &PathBuf) -> Result<Grid, String> {
 
     let mut grid = Grid { grid, original };
     solver::is_valid(&mut grid, 0);
+
+    Ok(grid)
+}
+
+pub(crate) fn read_file_play(path: String) -> Result<Grid, String> {
+    let contents = fs::read_to_string(path)
+        .map_err(|e| e.to_string())?;
+
+    let grid = parser::parser_file(&contents, Some('.'))
+        .map_err(|e| e.to_string())?;
+    let original = parser::parser_ori(&contents, Some('.'))
+        .map_err(|e| e.to_string())?;
+
+    let mut grid = Grid { grid, original };
+    // solver::is_valid(&mut grid, 0);
 
     Ok(grid)
 }

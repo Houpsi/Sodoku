@@ -1,8 +1,9 @@
 use piston_window::{rectangle, text, Context, G2d, Glyphs, MouseButton, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
-use crate::display::CELL_SIZE;
-use crate::grid::Grid;
+use crate::display::read_file_play;
+
+const MAX_SUDOKU: usize = 5;
 
 pub struct Number {
    vector: Vec<ButtonRect>
@@ -33,7 +34,7 @@ impl Number {
 //
 // }
 
-pub fn press_button_play(
+pub fn press_number_button(
     numbers: &Number,
     mouse: [f64; 2],
     app_state: &mut AppState,
@@ -47,6 +48,7 @@ pub fn press_button_play(
     print!("{} - {} is hovered\n", x, y);
     for (i, button) in numbers.vector.iter().enumerate() {
         if button.is_hovered(mouse) {
+            // check if it s not alredy at true
             let value = (i + 1) as u8;
             app_state
                 .grid_mut()
@@ -55,13 +57,32 @@ pub fn press_button_play(
     }
 }
 
+pub fn press_button_play (
+    mouse: [f64; 2],
+    new_sudoku: &ButtonRect,
+    app_state: &mut AppState
+) {
+    if new_sudoku.is_hovered(mouse) {
+        let file_name = format!("sudoku_not_resolved/sudoku_{}.txt", app_state.sudoku_counter());
+        if let Ok(grid) = read_file_play(file_name) {
+            app_state.set_grid(grid);
+        }
+        if app_state.sudoku_counter() >= MAX_SUDOKU {
+            app_state.set_sudoku_counter(0);
+        }
+        app_state.set_sudoku_counter(app_state.sudoku_counter() + 1);
+    }
+}
+
 pub fn display_play(vector: &Number,
                     app_state: &AppState,
                     c: &Context,
                     g: &mut G2d,
-                    glyphs: &mut Glyphs
+                    glyphs: &mut Glyphs,
+                    new_sudoku: &ButtonRect
 ) {
     for i in 0..9 {
         vector.vector[i].draw(c, g, glyphs, vector.vector[i].is_hovered(app_state.get_mousse_pos()));
     }
+    new_sudoku.draw(c, g, glyphs, new_sudoku.is_hovered(app_state.get_mousse_pos()));
 }
