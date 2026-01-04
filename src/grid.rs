@@ -1,5 +1,6 @@
 // Grid of the Sodoku
 
+#[derive(Clone)]
 pub struct Grid {
     pub grid: [[u32; 9]; 9],
     pub original: [[bool; 9]; 9],
