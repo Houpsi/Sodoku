@@ -74,9 +74,11 @@ pub fn init_window() {
                 State::Solver => {
                     press_button_solver(&choose_file, &solve, &clear_btn, mouse, &mut app_state);
                 }
-                State::Play => unsafe {
+                State::Play => {
                     if let Some((x, y)) = get_cell_from_mouse(mouse) {
-                        app_state.set_selected_cell(x, y);
+                        if !app_state.get_grid().get_grid_ori()[y][x] {
+                            app_state.set_selected_cell(x, y);
+                        }
                     }
                     if app_state.selected_cell().is_some() {
                         press_number_button(&numbers, mouse, &mut app_state);
