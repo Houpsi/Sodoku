@@ -2,6 +2,7 @@ use piston_window::{rectangle, text, Context, G2d, Glyphs, MouseButton, Transfor
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::read_file_play;
+use crate::solver;
 
 const MAX_SUDOKU: usize = 5;
 
@@ -45,11 +46,18 @@ pub fn press_number_button(
     if app_state.get_grid().original[y][x] {
         return;
     }
-    print!("{} - {} is hovered\n", x, y);
+
+    let mut grid = app_state.grid_mut().clone();
+
+    solver::is_valid(&mut grid, 0);
+
     for (i, button) in numbers.vector.iter().enumerate() {
         if button.is_hovered(mouse) {
-            // check if it s not alredy at true
             let value = (i + 1) as u8;
+
+            if value as u32 != grid.grid[y][x] {
+                continue;
+            }
             app_state
                 .grid_mut()
                 .add_to_grid(y, x, value as u32);
@@ -63,24 +71,32 @@ pub fn press_button_play (
     app_state: &mut AppState
 ) {
     if new_sudoku.is_hovered(mouse) {
-        let file_name = format!("sudoku_not_resolved/sudoku_{}.txt", app_state.sudoku_counter());
-        if let Ok(grid) = read_file_play(file_name) {
-            app_state.set_grid(grid);
-        }
-        if app_state.sudoku_counter() >= MAX_SUDOKU {
-            app_state.set_sudoku_counter(0);
-        }
-        app_state.set_sudoku_counter(app_state.sudoku_counter() + 1);
+        parse_file(new_sudoku, app_state);
     }
 }
 
+pub fn parse_file(new_sudoku: &ButtonRect,
+              app_state: &mut AppState) {
+    let file_name = format!("sudoku_not_resolved/sudoku_{}.txt", app_state.sudoku_counter());
+    if let Ok(grid) = read_file_play(file_name) {
+        app_state.set_grid(grid);
+    }
+    if app_state.sudoku_counter() >= MAX_SUDOKU {
+        app_state.set_sudoku_counter(0);
+    }
+    app_state.set_sudoku_counter(app_state.sudoku_counter() + 1);
+}
+
 pub fn display_play(vector: &Number,
-                    app_state: &AppState,
+                    app_state: &mut AppState,
                     c: &Context,
                     g: &mut G2d,
                     glyphs: &mut Glyphs,
                     new_sudoku: &ButtonRect
 ) {
+    if !app_state.grid_mut().original[0].contains(&true) {
+        parse_file(&new_sudoku, app_state);
+    }
     for i in 0..9 {
         vector.vector[i].draw(c, g, glyphs, vector.vector[i].is_hovered(app_state.get_mousse_pos()));
     }
