@@ -240,9 +240,7 @@ pub(crate) fn read_file_play(path: String) -> Result<Grid, String> {
     let original = parser::parser_ori(&contents, Some('.'))
         .map_err(|e| e.to_string())?;
 
-    let mut grid = Grid { grid, original };
-    // solver::is_valid(&mut grid, 0);
-
+    let grid = Grid { grid, original };
     Ok(grid)
 }
 
