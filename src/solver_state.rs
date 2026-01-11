@@ -32,8 +32,8 @@ pub fn display_solver(
     g: &mut G2d,
     glyphs: &mut Glyphs,
 ) {
-    choose_file.draw(c, g, glyphs, choose_file.is_hovered(app_state.get_mousse_pos()));
-    solve.draw(c, g, glyphs, solve.is_hovered(app_state.get_mousse_pos()));
-    clear_btn.draw(c, g, glyphs, clear_btn.is_hovered(app_state.get_mousse_pos()));
+    choose_file.draw(c, g, glyphs, choose_file.is_hovered(app_state.get_mousse_pos()), 18);
+    solve.draw(c, g, glyphs, solve.is_hovered(app_state.get_mousse_pos()), 18);
+    clear_btn.draw(c, g, glyphs, clear_btn.is_hovered(app_state.get_mousse_pos()), 18);
 }
 
