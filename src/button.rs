@@ -1,5 +1,5 @@
 use piston_window::{rectangle, text, G2d, Glyphs, Transformed};
-use piston_window::types::Color;
+use piston_window::types::{Color, FontSize};
 
 pub struct ButtonRect {
     pub x: f64,
@@ -19,7 +19,7 @@ impl ButtonRect {
             && mouse[1] <= self.y + self.h
     }
 
-    pub fn draw(&self, c: &piston_window::Context, g: &mut G2d, glyphs: &mut Glyphs, hovered: bool) {
+    pub fn draw(&self, c: &piston_window::Context, g: &mut G2d, glyphs: &mut Glyphs, hovered: bool, size: FontSize) {
         let color: Color = if hovered {
             self.color_hovered
         } else {
@@ -27,7 +27,7 @@ impl ButtonRect {
         };
         rectangle(color, [self.x, self.y, self.w, self.h], c.transform, g);
 
-        text::Text::new_color([0.0, 0.0, 0.0, 1.0], 18)
+        text::Text::new_color([0.0, 0.0, 0.0, 1.0], size)
             .draw(
                 &self.label,
                 glyphs,
