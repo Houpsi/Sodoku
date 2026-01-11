@@ -1,6 +1,6 @@
 use std::fs;
-use std::path::PathBuf;
-use piston_window::{clear, line, rectangle, text, Button, Context, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
+use std::path::{PathBuf};
+use piston_window::{clear, line, rectangle, text, Button, Context, Flip, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Texture, TextureSettings, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
@@ -19,6 +19,17 @@ pub(crate) const CELL_SIZE: f64 = 40.0;
 const BG_COLOR: Color = [0.96, 0.97, 0.98, 1.0];
 const GRID_LINE: Color = [0.7, 0.7, 0.7, 1.0];
 const GRID_LINE_BOLD: Color = [0.4, 0.4, 0.4, 1.0];
+
+// UI colors
+const PRIMARY: Color = [0.18, 0.45, 0.95, 1.0];
+const PRIMARY_HOVER: Color = [0.12, 0.38, 0.85, 1.0];
+const PRIMARY_ACTIVE: Color = [0.10, 0.30, 0.70, 1.0];
+
+pub const BTN_BG: Color = [0.95, 0.96, 0.98, 1.0];
+pub const BTN_HOVER: Color = [0.88, 0.91, 0.97, 1.0];
+
+const BTN_TEXT: Color = [0.15, 0.15, 0.2, 1.0];
+
 
 const CELL_BG: Color = [1.0, 1.0, 1.0, 1.0];
 const CELL_ORIGINAL: Color = [0.92, 0.92, 0.94, 1.0];
@@ -56,6 +67,15 @@ pub fn init_window() {
     let mut numbers = Number::new();
     numbers.fill_vector();
 
+    let mut life: u32 = 3;
+    let texture = Texture::from_path(
+        &mut window.create_texture_context(),
+        "assets/life.png",
+        Flip::None,
+        &TextureSettings::new(),
+    ).expect("Impossible de charger l'image");
+
+
     while let Some(e) = window.next() {
         e.mouse_cursor(|pos| app_state.set_mousse_pos(pos));
 
@@ -81,7 +101,7 @@ pub fn init_window() {
                         }
                     }
                     if app_state.selected_cell().is_some() {
-                        press_number_button(&numbers, mouse, &mut app_state);
+                        press_number_button(&numbers, mouse, &mut app_state, &mut life);
                     }
                     press_button_play(mouse, &new_sudoku, &mut app_state);
                 }
@@ -93,15 +113,15 @@ pub fn init_window() {
 
             if state == State::Menu {
                 draw_title(&c, g, &mut glyphs);
-                chose_play.draw(&c, g, &mut glyphs, chose_play.is_hovered(app_state.get_mousse_pos()));
-                chose_solver.draw(&c, g, &mut glyphs, chose_solver.is_hovered(app_state.get_mousse_pos()));
+                chose_play.draw(&c, g, &mut glyphs, chose_play.is_hovered(app_state.get_mousse_pos()), 18);
+                chose_solver.draw(&c, g, &mut glyphs, chose_solver.is_hovered(app_state.get_mousse_pos()), 18);
             }
 
             if state == State::Solver {
                 display_solver(&choose_file, &solve, &clear_btn, &mut app_state, &c, g, &mut glyphs);
             }
             if state == State::Play {
-                display_play(&numbers,&mut app_state, &c, g, &mut glyphs, &new_sudoku);
+                display_play(&numbers,&mut app_state, &c, g, &mut glyphs, &new_sudoku, &texture, life);
             }
 
             if state == State::Play || state == State::Solver {
@@ -125,8 +145,6 @@ fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
 }
 
 fn draw_grid(grid: &Grid, c: &Context, g: &mut G2d, glyphs: &mut Glyphs, app_state: &AppState) {
-    // let grid_px = CELL_SIZE * GRID_SIZE as f64;
-    // let start_x = (WINDOW_W - grid_px) / 2.0;
     let start_x = 50.0;
     let start_y = 115.0;
 
@@ -202,19 +220,6 @@ fn draw_grid_lines(c: &Context, g: &mut G2d, start_x: f64, start_y: f64) {
         line(color, thickness, [start_x, y, start_x + size, y], c.transform, g);
     }
 }
-
-// pub fn draw_text(
-//     ctx: &piston_window::Context,
-//     graphics: &mut G2d,
-//     glyphs: &mut Glyphs,
-//     color: Color,
-//     pos: [u32; 2],
-//     text: &str,
-// ) {
-//     text::Text::new_color(color, 20)
-//         .draw(text, glyphs, &ctx.draw_state, ctx.transform.trans(pos[0] as f64, pos[1] as f64), graphics)
-//         .unwrap();
-// }
 
 pub(crate) fn read_file(path: &PathBuf) -> Result<Grid, String> {
     let contents = fs::read_to_string(path)
