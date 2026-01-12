@@ -6,11 +6,12 @@ use crate::grid::Grid;
 use crate::button::ButtonRect;
 use crate::{parser, solver};
 use crate::app_state::AppState;
-use crate::play_state::{display_play, press_button_play, press_number_button, Number};
+use crate::lost_state::Lost;
+use crate::play_state::{check_remain_life, display_play, press_button_play, press_number_button, Number};
 use crate::solver_state::{display_solver, press_button_solver};
 
 pub(crate) const WINDOW_W: f64 = 800.0;
-const WINDOW_H: f64 = 500.0;
+pub(crate) const WINDOW_H: f64 = 500.0;
 
 const GRID_SIZE: usize = 9;
 pub(crate) const CELL_SIZE: f64 = 40.0;
@@ -38,10 +39,12 @@ const TEXT_ORIGINAL: Color = [0.1, 0.1, 0.1, 1.0];
 const TEXT_SOLVED: Color = [0.25, 0.45, 0.85, 1.0];
 
 #[derive(PartialEq)]
-enum State {
+pub enum State {
     Menu,
     Solver,
     Play,
+    Win,
+    Lost,
 }
 
 pub fn init_window() {
@@ -63,6 +66,8 @@ pub fn init_window() {
     let chose_play = ButtonRect::flat((WINDOW_W / 2.0) - 55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
     let new_sudoku = ButtonRect::flat((WINDOW_W / 1.3), (WINDOW_H / 15.0), 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+
+    let lost = Lost::new();
 
     let mut numbers = Number::new();
     numbers.fill_vector();
@@ -105,7 +110,15 @@ pub fn init_window() {
                     }
                     press_button_play(mouse, &new_sudoku, &mut app_state);
                 }
+                State::Lost => {
+                    lost.press_button_lost(mouse, &mut app_state, &mut state);
+                }
+                _ => {}
             }
+        }
+
+        if state == State::Play {
+            check_remain_life(life, &mut state);
         }
 
         window.draw_2d(&e, |c, g, device| {
@@ -122,6 +135,9 @@ pub fn init_window() {
             }
             if state == State::Play {
                 display_play(&numbers,&mut app_state, &c, g, &mut glyphs, &new_sudoku, &texture, life);
+            }
+            if state == State::Lost {
+                lost.display_lost_state(&mut app_state, &c, g, &mut glyphs);
             }
 
             if state == State::Play || state == State::Solver {
