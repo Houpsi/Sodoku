@@ -55,7 +55,7 @@ pub fn init_window() {
             .build()
             .unwrap();
 
-    let mut glyphs = window.load_font("font.ttf").unwrap();
+    let mut glyphs = window.load_font("assets/fonts/font.ttf").unwrap();
     let mut app_state = AppState::new();
 
     let choose_file = ButtonRect::flat(40.0, 60.0, 110.0, 38.0, "Load", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
@@ -65,9 +65,9 @@ pub fn init_window() {
     let chose_solver = ButtonRect::flat((WINDOW_W / 2.0) - 75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
     let chose_play = ButtonRect::flat((WINDOW_W / 2.0) - 55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
-    let new_sudoku = ButtonRect::flat((WINDOW_W / 1.3), (WINDOW_H / 15.0), 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
+    let new_sudoku = ButtonRect::flat(WINDOW_W / 1.3, WINDOW_H / 15.0, 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
-    let lost = Lost::new();
+    let lost = Lost::new(&mut window);
 
     let mut numbers = Number::new();
     numbers.fill_vector();
@@ -75,10 +75,10 @@ pub fn init_window() {
     let mut life: u32 = 3;
     let texture = Texture::from_path(
         &mut window.create_texture_context(),
-        "assets/life.png",
+        "assets/images/life.png",
         Flip::None,
         &TextureSettings::new(),
-    ).expect("Impossible de charger l'image");
+    ).expect("Download failed : life");
 
 
     while let Some(e) = window.next() {
