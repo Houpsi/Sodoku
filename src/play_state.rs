@@ -74,7 +74,7 @@ pub fn press_button_play (
 }
 
 pub fn check_remain_life(life: u32, state: &mut State) {
-    if (life < 1) {
+    if life < 1 {
         *state = State::Lost;
     }
 }
