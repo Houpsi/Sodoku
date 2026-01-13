@@ -1,22 +1,23 @@
-use piston_window::{Context, G2d, Glyphs};
+use piston_window::{image, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
-use crate::display::{State, WINDOW_H, WINDOW_W};
+use crate::display::{State, BTN_HOVER, WINDOW_H, WINDOW_W};
 
 pub struct Lost {
     retry: ButtonRect,
     menu: ButtonRect,
     quit: ButtonRect,
-    // background
+    texture_game_over: G2dTexture,
     // ecrit game over en grand
 }
 
 impl Lost {
-    pub fn new()-> Self {
+    pub fn new(window: &mut PistonWindow)-> Self {
         Self {
-            retry :  ButtonRect::flat((WINDOW_W / 2.0) + 30.0, (WINDOW_H / 2.0) - 20.0, 70.0, 38.0, "Retry", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
-            menu:  ButtonRect::flat((WINDOW_W / 2.0) - 70.0, (WINDOW_H / 2.0) - 20.0, 70.0, 38.0, "Menu", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
-            quit:  ButtonRect::flat((WINDOW_W / 2.0) - 30.0, (WINDOW_H / 2.0) + 40.0, 70.0, 38.0, "Quit", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
+            retry : ButtonRect::flat((WINDOW_W / 2.0) + 80.0, (WINDOW_H / 2.0) + 10.0, 70.0, 38.0, "Retry", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
+            menu: ButtonRect::flat((WINDOW_W / 3.2), (WINDOW_H / 2.0) + 10.0, 70.0, 38.0, "Menu", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
+            quit: ButtonRect::flat((WINDOW_W / 2.0) - 30.0, (WINDOW_H / 1.47), 70.0, 38.0, "Quit", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
+            texture_game_over: Texture::from_path(&mut window.create_texture_context(), "assets/images/game-over.png",  Flip::None, &TextureSettings::new(),).expect(" Download failed : game-over."),
         }
     }
 
@@ -40,6 +41,9 @@ impl Lost {
                               g: &mut G2d,
                               glyphs: &mut Glyphs,
     ) {
+        let transform = c.transform
+            .trans((WINDOW_W / 2.0) - 320.0, WINDOW_H / 20.0);
+        image(&self.texture_game_over, transform, g);
         self.retry.draw(c, g, glyphs, self.retry.is_hovered(app_state.get_mousse_pos()), 18);
         self.menu.draw(c, g, glyphs, self.menu.is_hovered(app_state.get_mousse_pos()), 18);
         self.quit.draw(c, g, glyphs, self.quit.is_hovered(app_state.get_mousse_pos()), 18);
