@@ -1,4 +1,4 @@
-use piston_window::{image, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed};
+use piston_window::{image, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed, Window};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::{State, BTN_HOVER, WINDOW_H, WINDOW_W};
@@ -25,13 +25,16 @@ impl Lost {
                               mouse: [f64; 2],
                               app_state: &mut AppState,
                               state: &mut State,
+                              window: &mut PistonWindow
     ) {
         if self.retry.is_hovered(mouse) {
+            *state = State::Play
         }
         if self.menu.is_hovered(mouse) {
             *state = State::Menu
         }
         if self.quit.is_hovered(mouse) {
+            window.set_should_close(true)
         }
     }
 
