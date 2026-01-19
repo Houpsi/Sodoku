@@ -1,7 +1,7 @@
 use piston_window::{image, rectangle, Context, G2d, G2dTexture, Glyphs, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
-use crate::display::{read_file_play, BTN_BG, BTN_HOVER};
+use crate::display::{read_file_play, State, BTN_BG, BTN_HOVER};
 use crate::solver;
 
 const MAX_SUDOKU: usize = 5;
@@ -70,6 +70,12 @@ pub fn press_button_play (
 ) {
     if new_sudoku.is_hovered(mouse) {
         parse_file(new_sudoku, app_state);
+    }
+}
+
+pub fn check_remain_life(life: u32, state: &mut State) {
+    if life < 1 {
+        *state = State::Lost;
     }
 }
 
