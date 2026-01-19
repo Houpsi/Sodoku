@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::{PathBuf};
-use piston_window::{clear, line, rectangle, text, Button, Context, Flip, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Texture, TextureSettings, Transformed, WindowSettings};
+use piston_window::{clear, line, rectangle, text, Button, Context, Flip, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Texture, TextureSettings, Transformed, Window, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::button::ButtonRect;
@@ -9,6 +9,7 @@ use crate::app_state::AppState;
 use crate::lost_state::Lost;
 use crate::play_state::{check_remain_life, display_play, press_button_play, press_number_button, Number};
 use crate::solver_state::{display_solver, press_button_solver};
+use crate::win_state::Win;
 
 pub(crate) const WINDOW_W: f64 = 800.0;
 pub(crate) const WINDOW_H: f64 = 500.0;
@@ -68,6 +69,7 @@ pub fn init_window() {
     let new_sudoku = ButtonRect::flat(WINDOW_W / 1.3, WINDOW_H / 15.0, 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
     let lost = Lost::new(&mut window);
+    let win = Win::new(&mut window);
 
     let mut numbers = Number::new();
     numbers.fill_vector();
@@ -111,9 +113,11 @@ pub fn init_window() {
                     press_button_play(mouse, &new_sudoku, &mut app_state, &mut life);
                 }
                 State::Lost => {
-                    lost.press_button_lost(mouse, &mut app_state, &mut state);
+                    lost.press_button_lost(mouse, &mut app_state, &mut state, &mut window);
                 }
-                _ => {}
+                State::Win => {
+                    win.press_button_win(mouse, &mut app_state, &mut state, &mut window);
+                }
             }
         }
 
@@ -138,6 +142,9 @@ pub fn init_window() {
             }
             if state == State::Lost {
                 lost.display_lost_state(&mut app_state, &c, g, &mut glyphs);
+            }
+            if state == State::Win {
+                win.display_win_state(&mut app_state, &c, g, &mut glyphs);
             }
 
             if state == State::Play || state == State::Solver {

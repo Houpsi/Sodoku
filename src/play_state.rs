@@ -66,10 +66,12 @@ pub fn press_number_button(
 pub fn press_button_play (
     mouse: [f64; 2],
     new_sudoku: &ButtonRect,
-    app_state: &mut AppState
+    app_state: &mut AppState,
+    life: &mut u32
 ) {
     if new_sudoku.is_hovered(mouse) {
         parse_file(new_sudoku, app_state);
+        *life = 3;
     }
 }
 
