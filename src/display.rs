@@ -108,7 +108,7 @@ pub fn init_window() {
                     if app_state.selected_cell().is_some() {
                         press_number_button(&numbers, mouse, &mut app_state, &mut life);
                     }
-                    press_button_play(mouse, &new_sudoku, &mut app_state);
+                    press_button_play(mouse, &new_sudoku, &mut app_state, &mut life);
                 }
                 State::Lost => {
                     lost.press_button_lost(mouse, &mut app_state, &mut state);
