@@ -24,10 +24,12 @@ impl Win {
                               mouse: [f64; 2],
                               app_state: &mut AppState,
                               state: &mut State,
-                              window: &mut PistonWindow
+                              window: &mut PistonWindow,
+                             life: &mut u32,
     ) {
         if self.retry.is_hovered(mouse) {
-            *state = State::Play
+            *state = State::Play;
+            *life = 3;
         }
         if self.menu.is_hovered(mouse) {
             *state = State::Menu

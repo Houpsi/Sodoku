@@ -110,10 +110,10 @@ pub fn init_window() {
                     press_button_play(mouse, &new_sudoku, &mut app_state, &mut life);
                 }
                 State::Lost => {
-                    lost.press_button_lost(mouse, &mut app_state, &mut state, &mut window);
+                    lost.press_button_lost(mouse, &mut app_state, &mut state, &mut window, &mut life);
                 }
                 State::Win => {
-                    win.press_button_win(mouse, &mut app_state, &mut state, &mut window);
+                    win.press_button_win(mouse, &mut app_state, &mut state, &mut window, &mut life);
                 }
             }
         }
