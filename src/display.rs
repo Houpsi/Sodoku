@@ -7,6 +7,7 @@ use crate::button::ButtonRect;
 use crate::{parser, solver};
 use crate::app_state::AppState;
 use crate::lost_state::Lost;
+use crate::menu_state::Menu;
 use crate::play_state::{check_remain_life, display_play, press_button_play, press_number_button, Number};
 use crate::solver_state::{display_solver, press_button_solver};
 use crate::win_state::Win;
@@ -68,6 +69,7 @@ pub fn init_window() {
 
     let new_sudoku = ButtonRect::flat(WINDOW_W / 1.3, WINDOW_H / 15.0, 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
 
+    let menu = Menu::new();
     let lost = Lost::new(&mut window);
     let win = Win::new(&mut window);
 
@@ -91,12 +93,7 @@ pub fn init_window() {
 
             match state {
                 State::Menu => {
-                    if chose_play.is_hovered(mouse) {
-                        state = State::Play
-                    }
-                    if chose_solver.is_hovered(mouse) {
-                        state = State::Solver
-                    }
+                    menu.press_button_menu(mouse, &mut app_state, &mut state)
                 }
                 State::Solver => {
                     press_button_solver(&choose_file, &solve, &clear_btn, mouse, &mut app_state);
@@ -129,9 +126,7 @@ pub fn init_window() {
             clear(BG_COLOR, g);
 
             if state == State::Menu {
-                draw_title(&c, g, &mut glyphs);
-                chose_play.draw(&c, g, &mut glyphs, chose_play.is_hovered(app_state.get_mousse_pos()), 18);
-                chose_solver.draw(&c, g, &mut glyphs, chose_solver.is_hovered(app_state.get_mousse_pos()), 18);
+               menu.display_menu_state(&mut app_state, &c, g, &mut glyphs);
             }
 
             if state == State::Solver {
@@ -155,7 +150,7 @@ pub fn init_window() {
     }
 }
 
-fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
+pub(crate) fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
     text::Text::new_color([0.15, 0.15, 0.2, 1.0], 32)
         .draw(
             "Sudoku Solver",
