@@ -15,9 +15,9 @@ impl Lost {
     pub fn new(window: &mut PistonWindow)-> Self {
         Self {
             retry : ButtonRect::flat((WINDOW_W / 2.0) + 80.0, (WINDOW_H / 2.0) + 10.0, 70.0, 38.0, "Retry", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
-            menu: ButtonRect::flat((WINDOW_W / 3.2), (WINDOW_H / 2.0) + 10.0, 70.0, 38.0, "Menu", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
-            quit: ButtonRect::flat((WINDOW_W / 2.0) - 30.0, (WINDOW_H / 1.47), 70.0, 38.0, "Quit", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
-            texture_game_over: Texture::from_path(&mut window.create_texture_context(), "assets/images/game-over.png",  Flip::None, &TextureSettings::new(),).expect(" Download failed : game-over."),
+            menu: ButtonRect::flat(WINDOW_W / 3.2, (WINDOW_H / 2.0) + 10.0, 70.0, 38.0, "Menu", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
+            quit: ButtonRect::flat((WINDOW_W / 2.0) - 30.0, WINDOW_H / 1.47, 70.0, 38.0, "Quit", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
+            texture_game_over: Texture::from_path(&mut window.create_texture_context(), "assets/images/game-over.png", Flip::None, &TextureSettings::new(),).expect(" Download failed : game-over."),
         }
     }
 
