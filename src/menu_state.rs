@@ -18,7 +18,6 @@ impl Menu {
 
     pub fn press_button_menu (&self,
                               mouse: [f64; 2],
-                              app_state: &mut AppState,
                               state: &mut State
     ) {
         if self.chose_play.is_hovered(mouse) {

@@ -1,9 +1,8 @@
 use std::fs;
 use std::path::{PathBuf};
-use piston_window::{clear, line, rectangle, text, Button, Context, Flip, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Texture, TextureSettings, Transformed, Window, WindowSettings};
+use piston_window::{clear, line, rectangle, text, Button, Context, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
-use crate::button::ButtonRect;
 use crate::{parser, solver};
 use crate::app_state::AppState;
 use crate::lost_state::Lost;
@@ -76,7 +75,7 @@ pub fn init_window() {
 
             match state {
                 State::Menu => {
-                    menu.press_button_menu(mouse, &mut app_state, &mut state)
+                    menu.press_button_menu(mouse, &mut state)
                 }
                 State::Solver => {
                     solver.press_button_solver(mouse, &mut app_state);
@@ -85,10 +84,10 @@ pub fn init_window() {
                     play.press_button_play(mouse, &mut app_state);
                 }
                 State::Lost => {
-                    lost.press_button_lost(mouse, &mut app_state, &mut state, &mut window, &mut play);
+                    lost.press_button_lost(mouse, &mut state, &mut window, &mut play);
                 }
                 State::Win => {
-                    win.press_button_win(mouse, &mut app_state, &mut state, &mut window, &mut play.get_life());
+                    win.press_button_win(mouse, &mut state, &mut window, &mut play.get_life());
                 }
             }
         }

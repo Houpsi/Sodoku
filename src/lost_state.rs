@@ -24,7 +24,6 @@ impl Lost {
 
     pub fn press_button_lost (&self,
                               mouse: [f64; 2],
-                              app_state: &mut AppState,
                               state: &mut State,
                               window: &mut PistonWindow,
                               play: &mut Play,

@@ -119,7 +119,7 @@ impl Play {
         self.new_sudoku.draw(c, g, glyphs, self.new_sudoku.is_hovered(app_state.get_mousse_pos()), 18);
 
         let mut x = 50.0;
-        for i in 0..self.life {
+        for _i in 0..self.life {
             let transform = c.transform
                 .trans(x, 85.0)
                 .scale(0.05, 0.05);
