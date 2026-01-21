@@ -2,6 +2,7 @@ use piston_window::{image, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow,
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::{State, BTN_HOVER, WINDOW_H, WINDOW_W};
+use crate::play_state::Play;
 
 pub struct Lost {
     retry: ButtonRect,
@@ -26,11 +27,11 @@ impl Lost {
                               app_state: &mut AppState,
                               state: &mut State,
                               window: &mut PistonWindow,
-                              life: &mut u32,
+                              play: &mut Play,
     ) {
         if self.retry.is_hovered(mouse) {
             *state = State::Play;
-            *life = 3;
+            play.set_life(3);
         }
         if self.menu.is_hovered(mouse) {
             *state = State::Menu
