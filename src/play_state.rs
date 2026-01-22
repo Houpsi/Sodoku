@@ -44,7 +44,7 @@ impl Play {
     pub fn new(window: &mut PistonWindow) -> Self {
         Self {
             new_sudoku: ButtonRect::flat(WINDOW_W / 1.3, WINDOW_H / 15.0, 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
-            back: ButtonRect::flat(WINDOW_W / 1.3, WINDOW_H / 15.0, 130.0, 38.0, " < ", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
+            back: ButtonRect::flat(10.0, 10.0, 40.0, 38.0, " < ", BTN_BG, BTN_HOVER),
             life: 3,
             numbers: Number::new(),
             texture_lives: Texture::from_path(&mut window.create_texture_context(), "assets/images/life.png", Flip::None, &TextureSettings::new(), ).expect("Download failed : life"),
@@ -77,6 +77,7 @@ impl Play {
     pub fn press_button_play(&mut self,
                               mouse: [f64; 2],
                               app_state: &mut AppState,
+                             state: &mut State,
     ) {
         if let Some((x, y)) = crate::display::get_cell_from_mouse(mouse) {
             if !app_state.get_grid().get_grid_ori()[y][x] {
@@ -89,6 +90,9 @@ impl Play {
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);
             self.set_life(3);
+        }
+        if self.back.is_hovered(mouse) {
+            *state = State::Menu
         }
     }
 
@@ -117,6 +121,7 @@ impl Play {
             self.numbers.vector[i].draw(c, g, glyphs, self.numbers.vector[i].is_hovered(app_state.get_mousse_pos()), 20);
         }
         self.new_sudoku.draw(c, g, glyphs, self.new_sudoku.is_hovered(app_state.get_mousse_pos()), 18);
+        self.back.draw(c, g, glyphs, self.back.is_hovered(app_state.get_mousse_pos()), 18);
 
         let mut x = 50.0;
         for _i in 0..self.life {

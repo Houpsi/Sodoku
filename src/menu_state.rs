@@ -1,7 +1,7 @@
 use piston_window::{Context, G2d, Glyphs};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
-use crate::display::{State, WINDOW_H, WINDOW_W};
+use crate::display::{State, BTN_BG, BTN_HOVER, WINDOW_H, WINDOW_W};
 
 pub struct Menu {
     chose_solver: ButtonRect,
@@ -11,8 +11,8 @@ pub struct Menu {
 impl Menu {
     pub fn new() -> Self {
         Self{
-            chose_solver: ButtonRect::flat((WINDOW_W / 2.0) -75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
-            chose_play: ButtonRect::flat((WINDOW_W / 2.0) -55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]),
+            chose_solver: ButtonRect::flat((WINDOW_W / 2.0) -75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", BTN_BG, BTN_HOVER),
+            chose_play: ButtonRect::flat((WINDOW_W / 2.0) -55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", BTN_BG, BTN_HOVER),
         }
     }
 

@@ -27,8 +27,8 @@ const PRIMARY: Color = [0.18, 0.45, 0.95, 1.0];
 const PRIMARY_HOVER: Color = [0.12, 0.38, 0.85, 1.0];
 const PRIMARY_ACTIVE: Color = [0.10, 0.30, 0.70, 1.0];
 
-pub const BTN_BG: Color = [0.95, 0.96, 0.98, 1.0];
-pub const BTN_HOVER: Color = [0.88, 0.91, 0.97, 1.0];
+pub const BTN_BG: Color = [0.36, 0.33, 0.85, 1.0];
+pub const BTN_HOVER: Color = [0.30, 0.28, 0.78, 1.0];
 
 const BTN_TEXT: Color = [0.15, 0.15, 0.2, 1.0];
 
@@ -78,10 +78,10 @@ pub fn init_window() {
                     menu.press_button_menu(mouse, &mut state)
                 }
                 State::Solver => {
-                    solver.press_button_solver(mouse, &mut app_state);
+                    solver.press_button_solver(mouse, &mut app_state, &mut state);
                 }
                 State::Play => {
-                    play.press_button_play(mouse, &mut app_state);
+                    play.press_button_play(mouse, &mut app_state, &mut state);
                 }
                 State::Lost => {
                     lost.press_button_lost(mouse, &mut state, &mut window, &mut play);
@@ -129,7 +129,7 @@ pub(crate) fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
             "Sudoku Solver",
             glyphs,
             &c.draw_state,
-            c.transform.trans((WINDOW_W / 2.0) - 130.0, 35.0),
+            c.transform.trans((WINDOW_W / 2.0) - 130.0, WINDOW_H / 4.0),
             g,
         )
         .unwrap();
