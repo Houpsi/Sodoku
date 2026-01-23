@@ -1,14 +1,15 @@
 use std::fs;
 use std::path::{PathBuf};
-use piston_window::{clear, line, rectangle, text, Button, Context, Flip, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Texture, TextureSettings, Transformed, WindowSettings};
+use piston_window::{clear, line, rectangle, text, Button, Context, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
-use crate::button::ButtonRect;
 use crate::{parser, solver};
 use crate::app_state::AppState;
 use crate::lost_state::Lost;
-use crate::play_state::{check_remain_life, display_play, press_button_play, press_number_button, Number};
-use crate::solver_state::{display_solver, press_button_solver};
+use crate::menu_state::Menu;
+use crate::play_state::{Play};
+use crate::solver_state::{Solver};
+use crate::win_state::Win;
 
 pub(crate) const WINDOW_W: f64 = 800.0;
 pub(crate) const WINDOW_H: f64 = 500.0;
@@ -26,8 +27,8 @@ const PRIMARY: Color = [0.18, 0.45, 0.95, 1.0];
 const PRIMARY_HOVER: Color = [0.12, 0.38, 0.85, 1.0];
 const PRIMARY_ACTIVE: Color = [0.10, 0.30, 0.70, 1.0];
 
-pub const BTN_BG: Color = [0.95, 0.96, 0.98, 1.0];
-pub const BTN_HOVER: Color = [0.88, 0.91, 0.97, 1.0];
+pub const BTN_BG: Color = [0.36, 0.33, 0.85, 1.0];
+pub const BTN_HOVER: Color = [0.30, 0.28, 0.78, 1.0];
 
 const BTN_TEXT: Color = [0.15, 0.15, 0.2, 1.0];
 
@@ -58,28 +59,13 @@ pub fn init_window() {
     let mut glyphs = window.load_font("assets/fonts/font.ttf").unwrap();
     let mut app_state = AppState::new();
 
-    let choose_file = ButtonRect::flat(40.0, 60.0, 110.0, 38.0, "Load", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
-    let solve = ButtonRect::flat(160.0, 60.0, 110.0, 38.0, "Solve", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
-    let clear_btn = ButtonRect::flat(280.0, 60.0, 110.0, 38.0, "Clear", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
-
-    let chose_solver = ButtonRect::flat((WINDOW_W / 2.0) - 75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
-    let chose_play = ButtonRect::flat((WINDOW_W / 2.0) - 55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
-
-    let new_sudoku = ButtonRect::flat(WINDOW_W / 1.3, WINDOW_H / 15.0, 130.0, 38.0, "New sudoku", [0.61, 0.30, 0.8, 1.0], [0.87, 0.66, 1.0, 1.0]);
-
+    let menu = Menu::new();
+    let solver = Solver::new();
+    let mut play = Play::new(&mut window);
     let lost = Lost::new(&mut window);
+    let win = Win::new(&mut window);
 
-    let mut numbers = Number::new();
-    numbers.fill_vector();
-
-    let mut life: u32 = 3;
-    let texture = Texture::from_path(
-        &mut window.create_texture_context(),
-        "assets/images/life.png",
-        Flip::None,
-        &TextureSettings::new(),
-    ).expect("Download failed : life");
-
+    play.init_number();
 
     while let Some(e) = window.next() {
         e.mouse_cursor(|pos| app_state.set_mousse_pos(pos));
@@ -89,57 +75,46 @@ pub fn init_window() {
 
             match state {
                 State::Menu => {
-                    if chose_play.is_hovered(mouse) {
-                        state = State::Play
-                    }
-                    if chose_solver.is_hovered(mouse) {
-                        state = State::Solver
-                    }
+                    menu.press_button_menu(mouse, &mut state)
                 }
                 State::Solver => {
-                    press_button_solver(&choose_file, &solve, &clear_btn, mouse, &mut app_state);
+                    solver.press_button_solver(mouse, &mut app_state, &mut state);
                 }
                 State::Play => {
-                    if let Some((x, y)) = get_cell_from_mouse(mouse) {
-                        if !app_state.get_grid().get_grid_ori()[y][x] {
-                            app_state.set_selected_cell(x, y);
-                        }
-                    }
-                    if app_state.selected_cell().is_some() {
-                        press_number_button(&numbers, mouse, &mut app_state, &mut life);
-                    }
-                    press_button_play(mouse, &new_sudoku, &mut app_state, &mut life);
+                    play.press_button_play(mouse, &mut app_state, &mut state);
                 }
                 State::Lost => {
-                    lost.press_button_lost(mouse, &mut app_state, &mut state);
+                    lost.press_button_lost(mouse, &mut state, &mut window, &mut play);
                 }
-                _ => {}
+                State::Win => {
+                    win.press_button_win(mouse, &mut state, &mut window, &mut play.get_life());
+                }
             }
         }
 
         if state == State::Play {
-            check_remain_life(life, &mut state);
+            play.check_remain_life(&mut state);
         }
 
         window.draw_2d(&e, |c, g, device| {
             clear(BG_COLOR, g);
 
             if state == State::Menu {
-                draw_title(&c, g, &mut glyphs);
-                chose_play.draw(&c, g, &mut glyphs, chose_play.is_hovered(app_state.get_mousse_pos()), 18);
-                chose_solver.draw(&c, g, &mut glyphs, chose_solver.is_hovered(app_state.get_mousse_pos()), 18);
+               menu.display_menu_state(&mut app_state, &c, g, &mut glyphs);
             }
 
             if state == State::Solver {
-                display_solver(&choose_file, &solve, &clear_btn, &mut app_state, &c, g, &mut glyphs);
+                solver.display_solver(&mut app_state, &c, g, &mut glyphs);
             }
             if state == State::Play {
-                display_play(&numbers,&mut app_state, &c, g, &mut glyphs, &new_sudoku, &texture, life);
+                play.display_play(&mut app_state, &c, g, &mut glyphs);
             }
             if state == State::Lost {
                 lost.display_lost_state(&mut app_state, &c, g, &mut glyphs);
             }
-
+            if state == State::Win {
+                win.display_win_state(&mut app_state, &c, g, &mut glyphs);
+            }
             if state == State::Play || state == State::Solver {
                 draw_grid(&app_state.get_grid(), &c, g, &mut glyphs, &app_state);
             }
@@ -148,13 +123,13 @@ pub fn init_window() {
     }
 }
 
-fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
+pub(crate) fn draw_title(c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
     text::Text::new_color([0.15, 0.15, 0.2, 1.0], 32)
         .draw(
             "Sudoku Solver",
             glyphs,
             &c.draw_state,
-            c.transform.trans((WINDOW_W / 2.0) - 130.0, 35.0),
+            c.transform.trans((WINDOW_W / 2.0) - 130.0, WINDOW_H / 4.0),
             g,
         )
         .unwrap();
@@ -265,7 +240,7 @@ pub(crate) fn read_file_play(path: String) -> Result<Grid, String> {
     Ok(grid)
 }
 
-fn get_cell_from_mouse(mouse: [f64; 2]) -> Option<(usize, usize)> {
+pub(crate) fn get_cell_from_mouse(mouse: [f64; 2]) -> Option<(usize, usize)> {
     let start_x = 50.0;
     let start_y = 115.0;
 
