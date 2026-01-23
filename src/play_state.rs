@@ -1,4 +1,4 @@
-use piston_window::{image, rectangle, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed};
+use piston_window::{image, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Text, Texture, TextureSettings, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::{read_file_play, State, BTN_BG, BTN_HOVER, WINDOW_H, WINDOW_W};
@@ -38,6 +38,7 @@ pub struct Play {
     life: u32,
     numbers: Number,
     texture_lives: G2dTexture,
+    score: u32,
 }
 
 impl Play {
@@ -48,6 +49,7 @@ impl Play {
             life: 3,
             numbers: Number::new(),
             texture_lives: Texture::from_path(&mut window.create_texture_context(), "assets/images/life.png", Flip::None, &TextureSettings::new(), ).expect("Download failed : life"),
+            score: 0,
         }
     }
 
@@ -92,7 +94,8 @@ impl Play {
             self.set_life(3);
         }
         if self.back.is_hovered(mouse) {
-            *state = State::Menu
+            *state = State::Menu;
+            self.set_life(3)
         }
     }
 
@@ -122,6 +125,16 @@ impl Play {
         }
         self.new_sudoku.draw(c, g, glyphs, self.new_sudoku.is_hovered(app_state.get_mousse_pos()), 18);
         self.back.draw(c, g, glyphs, self.back.is_hovered(app_state.get_mousse_pos()), 18);
+        let score_str = self.score.to_string();
+        text::Text::new_color([0.15, 0.15, 0.2, 1.0], 24)
+            .draw(
+                &score_str,
+                glyphs,
+                &c.draw_state,
+                c.transform.trans(370.0, 110.0),
+                g,
+            )
+            .unwrap();
 
         let mut x = 50.0;
         for _i in 0..self.life {
@@ -156,6 +169,7 @@ impl Play {
                     self.life -= 1;
                     continue;
                 }
+                self.score += 100;
                 app_state
                     .grid_mut()
                     .add_to_grid(y, x, value as u32);
