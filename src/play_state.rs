@@ -169,10 +169,12 @@ impl Play {
                     self.life -= 1;
                     continue;
                 }
-                self.score += 100;
-                app_state
-                    .grid_mut()
-                    .add_to_grid(y, x, value as u32);
+                if (app_state.get_grid().grid[y][x] == 0) {
+                    self.score += 100;
+                    app_state
+                        .grid_mut()
+                        .add_to_grid(y, x, value as u32);
+                }
             }
         }
     }
