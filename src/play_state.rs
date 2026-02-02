@@ -59,6 +59,9 @@ impl Play {
     pub fn set_life(&mut self, new_life: u32) {
         self.life = new_life
     }
+    pub fn set_score(&mut self, new_score: u32) {
+        self.score = new_score
+    }
 
     pub fn init_number(&mut self) {
         self.numbers.fill_vector();
@@ -92,10 +95,12 @@ impl Play {
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);
             self.set_life(3);
+            self.set_score(0);
         }
         if self.back.is_hovered(mouse) {
             *state = State::Menu;
-            self.set_life(3)
+            self.set_life(3);
+            self.set_score(0);
         }
     }
 
