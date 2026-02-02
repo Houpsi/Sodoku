@@ -1,4 +1,4 @@
-use piston_window::{image, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Text, Texture, TextureSettings, Transformed};
+use piston_window::{image, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::{read_file_play, State, BTN_BG, BTN_HOVER, WINDOW_H, WINDOW_W};
@@ -53,9 +53,6 @@ impl Play {
         }
     }
 
-    pub fn get_life(&self) -> u32 {
-        self.life
-    }
     pub fn set_life(&mut self, new_life: u32) {
         self.life = new_life
     }
@@ -174,7 +171,7 @@ impl Play {
                     self.life -= 1;
                     continue;
                 }
-                if (app_state.get_grid().grid[y][x] == 0) {
+                if app_state.get_grid().grid[y][x] == 0 {
                     self.score += 100;
                     app_state
                         .grid_mut()
