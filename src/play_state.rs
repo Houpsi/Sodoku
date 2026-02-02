@@ -1,4 +1,4 @@
-use piston_window::{image, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Text, Texture, TextureSettings, Transformed};
+use piston_window::{image, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::{read_file_play, State, BTN_BG, BTN_HOVER, WINDOW_H, WINDOW_W};
@@ -53,11 +53,11 @@ impl Play {
         }
     }
 
-    pub fn get_life(&self) -> u32 {
-        self.life
-    }
     pub fn set_life(&mut self, new_life: u32) {
         self.life = new_life
+    }
+    pub fn set_score(&mut self, new_score: u32) {
+        self.score = new_score
     }
 
     pub fn init_number(&mut self) {
@@ -92,10 +92,12 @@ impl Play {
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);
             self.set_life(3);
+            self.set_score(0);
         }
         if self.back.is_hovered(mouse) {
             *state = State::Menu;
-            self.set_life(3)
+            self.set_life(3);
+            self.set_score(0);
         }
     }
 
@@ -169,10 +171,12 @@ impl Play {
                     self.life -= 1;
                     continue;
                 }
-                self.score += 100;
-                app_state
-                    .grid_mut()
-                    .add_to_grid(y, x, value as u32);
+                if app_state.get_grid().grid[y][x] == 0 {
+                    self.score += 100;
+                    app_state
+                        .grid_mut()
+                        .add_to_grid(y, x, value as u32);
+                }
             }
         }
     }

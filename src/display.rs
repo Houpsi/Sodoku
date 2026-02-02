@@ -87,7 +87,7 @@ pub fn init_window() {
                     lost.press_button_lost(mouse, &mut state, &mut window, &mut play);
                 }
                 State::Win => {
-                    win.press_button_win(mouse, &mut state, &mut window, &mut play.get_life());
+                    win.press_button_win(mouse, &mut state, &mut window, &mut play);
                 }
             }
         }

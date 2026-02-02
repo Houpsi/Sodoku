@@ -13,5 +13,5 @@ mod menu_state;
 
 fn main() {
     display::init_window()
-
 }
+
