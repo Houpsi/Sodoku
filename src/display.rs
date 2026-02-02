@@ -21,17 +21,8 @@ pub(crate) const CELL_SIZE: f64 = 40.0;
 const BG_COLOR: Color = [0.96, 0.97, 0.98, 1.0];
 const GRID_LINE: Color = [0.7, 0.7, 0.7, 1.0];
 const GRID_LINE_BOLD: Color = [0.4, 0.4, 0.4, 1.0];
-
-// UI colors
-const PRIMARY: Color = [0.18, 0.45, 0.95, 1.0];
-const PRIMARY_HOVER: Color = [0.12, 0.38, 0.85, 1.0];
-const PRIMARY_ACTIVE: Color = [0.10, 0.30, 0.70, 1.0];
-
 pub const BTN_BG: Color = [0.36, 0.33, 0.85, 1.0];
 pub const BTN_HOVER: Color = [0.30, 0.28, 0.78, 1.0];
-
-const BTN_TEXT: Color = [0.15, 0.15, 0.2, 1.0];
-
 
 const CELL_BG: Color = [1.0, 1.0, 1.0, 1.0];
 const CELL_ORIGINAL: Color = [0.92, 0.92, 0.94, 1.0];
