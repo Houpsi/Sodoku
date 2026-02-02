@@ -31,6 +31,7 @@ impl Lost {
         if self.retry.is_hovered(mouse) {
             *state = State::Play;
             play.set_life(3);
+            play.set_score(0);
         }
         if self.menu.is_hovered(mouse) {
             *state = State::Menu
