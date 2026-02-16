@@ -1,3 +1,6 @@
+use std::{fs, io};
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use piston_window::{image, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed, Window};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
@@ -9,6 +12,7 @@ pub struct Win {
     menu: ButtonRect,
     quit: ButtonRect,
     texture_win: G2dTexture,
+    leader_board: Vec<(String, u32)>
 }
 
 impl Win {
@@ -18,6 +22,7 @@ impl Win {
             menu: ButtonRect::flat(WINDOW_W / 3.2, (WINDOW_H / 2.0) + 10.0, 70.0, 38.0, "Menu", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
             quit: ButtonRect::flat((WINDOW_W / 2.0) - 30.0, WINDOW_H / 1.47, 70.0, 38.0, "Quit", BTN_HOVER, [0.87, 0.66, 1.0, 1.0]),
             texture_win: Texture::from_path(&mut window.create_texture_context(), "assets/images/win_state.png",  Flip::None, &TextureSettings::new(),).expect(" Download failed : game-over."),
+            leader_board: Self::parse_leader_board().unwrap_or_else(|_| Vec::new())
         }
     }
 
@@ -26,7 +31,6 @@ impl Win {
                               state: &mut State,
                               window: &mut PistonWindow,
                               play: &mut Play,
-
     ) {
         if self.retry.is_hovered(mouse) {
             *state = State::Play;
@@ -39,6 +43,28 @@ impl Win {
         if self.quit.is_hovered(mouse) {
             window.set_should_close(true)
         }
+    }
+
+    pub fn parse_leader_board() -> io::Result<Vec<(String, u32)>> {
+        let f = File::open("leaderboard/leaderBoard.txt")?;
+        let f = BufReader::new(f);
+        let mut leader_board = Vec::new();
+
+        for line in f.lines() {
+            let line = line?;
+            let mut parts = line.split_whitespace();
+            let name = match parts.next() {
+                Some(n) => n.to_string(),
+                None => continue,
+            };
+            let score = match parts.next().and_then(|s| s.parse::<u32>().ok()) {
+                Some(s) => s,
+                None => continue,
+            };
+            leader_board.push((name, score));
+        }
+        println!("hello\n{:?}", leader_board);
+        Ok(leader_board)
     }
 
     pub fn display_win_state(&self,
