@@ -1,7 +1,7 @@
 use std::{fs, io};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use piston_window::{image, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed, Window};
+use piston_window::{image, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed, Window};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
 use crate::display::{State, BTN_HOVER, WINDOW_H, WINDOW_W};
@@ -79,5 +79,19 @@ impl Win {
         self.retry.draw(c, g, glyphs, self.retry.is_hovered(app_state.get_mousse_pos()), 18);
         self.menu.draw(c, g, glyphs, self.menu.is_hovered(app_state.get_mousse_pos()), 18);
         self.quit.draw(c, g, glyphs, self.quit.is_hovered(app_state.get_mousse_pos()), 18);
+        let leaderboard_text =  self.leader_board.iter().fold(String::new(), |mut acc, (name, score)| {
+            acc.push_str(&format!("{} - {}", name, score));
+            acc
+        });
+
+        text::Text::new_color([0.15, 0.15, 0.2, 1.0], 15)
+            .draw(
+                &leaderboard_text,
+                glyphs,
+                &c.draw_state,
+                c.transform.trans((WINDOW_W / 2.0), WINDOW_H / 4.0),
+                g,
+            )
+            .unwrap();
     }
 }
