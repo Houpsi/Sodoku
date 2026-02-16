@@ -89,6 +89,9 @@ impl Play {
         if app_state.selected_cell().is_some() {
             self.press_number_button(mouse, app_state);
         }
+        if self.check_win(app_state) {
+            *state = State::Win
+        }
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);
             self.set_life(3);
@@ -179,5 +182,19 @@ impl Play {
                 }
             }
         }
+    }
+
+    fn check_win(&mut self, app_state: &mut AppState) -> bool {
+        let mut grid = app_state.grid_mut().clone();
+
+        solver::is_valid(&mut grid, 0);
+       for i in 0..8 {
+           for y in 0..8 {
+               if (app_state.grid_mut().grid[i][y] != grid.grid[i][y]) {
+                   return false
+               }
+           }
+       }
+        true
     }
 }
