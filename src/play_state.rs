@@ -60,6 +60,10 @@ impl Play {
         self.score = new_score
     }
 
+    pub fn get_score(&self) -> u32 {
+        self.score
+    }
+
     pub fn init_number(&mut self) {
         self.numbers.fill_vector();
     }
@@ -90,7 +94,10 @@ impl Play {
             self.press_number_button(mouse, app_state);
         }
         if self.check_win(app_state) {
-            *state = State::Win
+            *state = State::Win;
+            self.set_life(3);
+            self.set_score(0);
+            app_state.clear_selected_cell();
         }
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);

@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::{PathBuf};
-use piston_window::{clear, line, rectangle, text, Button, Context, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, Transformed, WindowSettings};
+use piston_window::{clear, line, rectangle, text, Button, Context, G2d, Glyphs, MouseCursorEvent, PistonWindow, PressEvent, TextEvent, Transformed, WindowSettings};
 use piston_window::types::Color;
 use crate::grid::Grid;
 use crate::{parser, solver};
@@ -54,7 +54,7 @@ pub fn init_window() {
     let solver = Solver::new();
     let mut play = Play::new(&mut window);
     let lost = Lost::new(&mut window);
-    let win = Win::new(&mut window);
+    let mut win = Win::new(&mut window);
 
     play.init_number();
 
@@ -81,6 +81,12 @@ pub fn init_window() {
                     win.press_button_win(mouse, &mut state, &mut window, &mut play);
                 }
             }
+        }
+        if let Some(Button::Keyboard(key)) = e.press_args() {
+           win.get_input_key(key);
+        }
+        if let Some(text) = e.text_args() {
+            win.get_input_char(text)
         }
 
         if state == State::Play {
