@@ -109,6 +109,10 @@ impl Play {
             *state = State::Menu;
             self.set_life(3);
             self.set_score(0);
+            app_state.clear_selected_cell();
+            app_state.clear_grid();
+            app_state.clear_grid_ori();
+            app_state.set_sudoku_counter(app_state.sudoku_counter() - 1)
         }
     }
 
