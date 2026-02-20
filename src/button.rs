@@ -20,21 +20,23 @@ impl ButtonRect {
     }
 
     pub fn draw(&self, c: &piston_window::Context, g: &mut G2d, glyphs: &mut Glyphs, hovered: bool, size: FontSize) {
-        let color: Color = if hovered {
-            self.color_hovered
-        } else {
-            self.color
-        };
-        rectangle(color, [self.x, self.y, self.w, self.h], c.transform, g);
+        let color = if hovered { self.color_hovered } else { self.color };
+        let y_offset = if hovered { -2.0 } else { 0.0 };
+        let by = self.y + y_offset;
 
-        text::Text::new_color([0.0, 0.0, 0.0, 1.0], size)
-            .draw(
-                &self.label,
-                glyphs,
-                &c.draw_state,
-                c.transform.trans(self.x + 10.0, self.y + self.h / 2.0 + 6.0),
-                g,
-            )
+        rectangle([0.0, 0.0, 0.0, 0.25], [self.x + 4.0, by + 4.0, self.w, self.h], c.transform, g);
+
+        rectangle(color, [self.x, by, self.w, self.h], c.transform, g);
+
+        piston_window::Rectangle::new_border([0.15, 0.15, 0.15, 1.0], 1.0)
+            .draw([self.x, by, self.w, self.h], &c.draw_state, c.transform, g);
+
+        let approx_text_width = self.label.len() as f64 * (size as f64 * 0.6);
+        let text_x = self.x + (self.w - approx_text_width) / 2.0;
+        let text_y = by + self.h / 2.0 + (size as f64 * 0.35);
+
+        text::Text::new_color([1.0, 1.0, 1.0, 1.0], size)
+            .draw(&self.label, glyphs, &c.draw_state, c.transform.trans(text_x, text_y), g)
             .unwrap();
     }
 

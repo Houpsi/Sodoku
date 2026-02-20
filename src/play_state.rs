@@ -60,11 +60,15 @@ impl Play {
         self.score = new_score
     }
 
+    pub fn get_score(&self) -> u32 {
+        self.score
+    }
+
     pub fn init_number(&mut self) {
         self.numbers.fill_vector();
     }
 
-    fn parse_file(&mut self,
+    pub fn parse_file(&mut self,
                   app_state: &mut AppState) {
         let file_name = format!("sudoku_not_resolved/sudoku_{}.txt", app_state.sudoku_counter());
         if let Ok(grid) = read_file_play(file_name) {
@@ -89,6 +93,13 @@ impl Play {
         if app_state.selected_cell().is_some() {
             self.press_number_button(mouse, app_state);
         }
+        if self.check_win(app_state) {
+            *state = State::Win;
+            self.set_life(3);
+            self.set_score(0);
+            app_state.clear_selected_cell();
+            app_state.clear_grid();
+        }
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);
             self.set_life(3);
@@ -98,6 +109,10 @@ impl Play {
             *state = State::Menu;
             self.set_life(3);
             self.set_score(0);
+            app_state.clear_selected_cell();
+            app_state.clear_grid();
+            app_state.clear_grid_ori();
+            app_state.set_sudoku_counter(app_state.sudoku_counter() - 1)
         }
     }
 
@@ -179,5 +194,19 @@ impl Play {
                 }
             }
         }
+    }
+
+    fn check_win(&mut self, app_state: &mut AppState) -> bool {
+        let mut grid = app_state.grid_mut().clone();
+
+        solver::is_valid(&mut grid, 0);
+       for i in 0..8 {
+           for y in 0..8 {
+               if app_state.grid_mut().grid[i][y] != grid.grid[i][y] {
+                   return false
+               }
+           }
+       }
+        true
     }
 }

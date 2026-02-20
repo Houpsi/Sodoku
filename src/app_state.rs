@@ -54,6 +54,14 @@ impl AppState {
     pub fn clear_selected_cell(&mut self) {
         self.selected_cell = None;
     }
+    
+    pub fn clear_grid(&mut self) {
+        self.grid.grid = [[0; 9]; 9];
+    }
+
+    pub fn clear_grid_ori(&mut self) {
+        self.grid.original = [[false; 9]; 9];
+    }
     pub fn selected_cell(&self) -> Option<(usize, usize)> {
         self.selected_cell
     }

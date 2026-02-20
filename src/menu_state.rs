@@ -10,9 +10,13 @@ pub struct Menu {
 
 impl Menu {
     pub fn new() -> Self {
-        Self{
-            chose_solver: ButtonRect::flat((WINDOW_W / 2.0) -75.0, (WINDOW_H / 2.0) - 50.0, 150.0, 38.0, "Solve Sudoku", BTN_BG, BTN_HOVER),
-            chose_play: ButtonRect::flat((WINDOW_W / 2.0) -55.0, (WINDOW_H / 2.0) + 10.0, 110.0, 38.0, "Play", BTN_BG, BTN_HOVER),
+        let btn_w = 180.0;
+        let btn_h = 46.0;
+        let cx = (WINDOW_W - btn_w) / 2.0;
+        let cy = WINDOW_H / 2.0;
+        Self {
+            chose_solver: ButtonRect::flat(cx, cy - 60.0, btn_w, btn_h, "Solve Sudoku", BTN_BG, BTN_HOVER),
+            chose_play:   ButtonRect::flat(cx, cy + 10.0, btn_w, btn_h, "Play",         BTN_BG, BTN_HOVER),
         }
     }
 
