@@ -8,14 +8,13 @@ use crate::button::ButtonRect;
 use crate::display::{State, BTN_HOVER, WINDOW_H, WINDOW_W};
 use crate::play_state::Play;
 
-// Champ de saisie
 const INPUT_BG:          [f32; 4] = [0.97, 0.97, 0.99, 1.0];
-const INPUT_BORDER:      [f32; 4] = [0.36, 0.33, 0.85, 1.0]; // violet (focus)
-const INPUT_BORDER_DIM:  [f32; 4] = [0.82, 0.82, 0.88, 1.0]; // gris (non-focus)
+const INPUT_BORDER:      [f32; 4] = [0.36, 0.33, 0.85, 1.0];
+const INPUT_BORDER_DIM:  [f32; 4] = [0.82, 0.82, 0.88, 1.0];
 const INPUT_TEXT:        [f32; 4] = [0.12, 0.12, 0.18, 1.0];
 const INPUT_PLACEHOLDER: [f32; 4] = [0.65, 0.65, 0.72, 1.0];
+const INPUT_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 
-// Leaderboard
 const LB_BG:      [f32; 4] = [0.98, 0.98, 1.00, 1.0];
 const LB_HEADER:  [f32; 4] = [0.36, 0.33, 0.85, 1.0];
 const LB_GOLD:    [f32; 4] = [0.95, 0.70, 0.10, 1.0];
@@ -24,12 +23,10 @@ const LB_BRONZE:  [f32; 4] = [0.72, 0.45, 0.20, 1.0];
 const LB_TEXT:    [f32; 4] = [0.20, 0.20, 0.28, 1.0];
 const LB_DIVIDER: [f32; 4] = [0.88, 0.88, 0.93, 1.0];
 
-// Bouton Save
 const SAVE_BTN_BG:    [f32; 4] = [0.20, 0.78, 0.56, 1.0]; // vert mint
 const SAVE_BTN_HOVER: [f32; 4] = [0.15, 0.66, 0.46, 1.0];
 const SAVE_BTN_DONE:  [f32; 4] = [0.75, 0.75, 0.80, 1.0]; // gris = déjà sauvé
 
-// Layout
 const LB_X: f64 = 560.0;  const LB_Y: f64 = 200.0;
 const LB_W: f64 = 210.0;  const LB_ROW_H: f64 = 22.0;
 const INPUT_X: f64 = 560.0; const INPUT_Y: f64 = 370.0;
@@ -53,9 +50,9 @@ impl Win {
         let btn_h  = 36.0;
         let center = WINDOW_W / 2.0 - 160.0;
         Self {
-            retry : ButtonRect::flat(center, btn_y, btn_w, btn_h, "Retry", BTN_HOVER, [0.36, 0.33, 0.85, 1.0]),
-            menu: ButtonRect::flat(center + 95.0, btn_y, btn_w, btn_h, "Menu", BTN_HOVER, [0.36, 0.33, 0.85, 1.0]),
-            quit: ButtonRect::flat(center + 190.0, btn_y, btn_w, btn_h, "Quit", BTN_HOVER, [0.36, 0.33, 0.85, 1.0]),
+            retry : ButtonRect::flat(center, btn_y, btn_w, btn_h, "Retry", BTN_HOVER, INPUT_BORDER),
+            menu: ButtonRect::flat(center + 95.0, btn_y, btn_w, btn_h, "Menu", BTN_HOVER, INPUT_BORDER),
+            quit: ButtonRect::flat(center + 190.0, btn_y, btn_w, btn_h, "Quit", BTN_HOVER, INPUT_BORDER),
             texture_win: Texture::from_path(&mut window.create_texture_context(), "assets/images/you_win.png",  Flip::None, &TextureSettings::new(),).expect(" Download failed : you-win."),
             leader_board: Self::parse_leader_board().unwrap_or_else(|_| Vec::new()),
             username: String::new(),
@@ -223,12 +220,12 @@ impl Win {
         if !self.username.is_empty() && !self.score_saved {
             let color = if Self::point_in_rect(mouse, INPUT_X, btn_y, INPUT_W, 36.0) { SAVE_BTN_HOVER } else { SAVE_BTN_BG };
             rectangle(color, [INPUT_X, btn_y, INPUT_W, 36.0], c.transform, g);
-            text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15)
+            text::Text::new_color(INPUT_COLOR, 15)
                 .draw("Save my score", glyphs, &c.draw_state,
                       c.transform.trans(INPUT_X + INPUT_W / 2.0 - 48.0, btn_y + 23.0), g).unwrap();
         } else if self.score_saved {
             rectangle(SAVE_BTN_DONE, [INPUT_X, btn_y, INPUT_W, 36.0], c.transform, g);
-            text::Text::new_color([1.0, 1.0, 1.0, 1.0], 15)
+            text::Text::new_color(INPUT_COLOR, 15)
                 .draw("Score saved!", glyphs, &c.draw_state,
                       c.transform.trans(INPUT_X + INPUT_W / 2.0 - 42.0, btn_y + 23.0), g).unwrap();
         }
