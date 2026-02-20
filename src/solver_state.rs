@@ -35,8 +35,8 @@ impl Solver {
             }
         }
         if self.clear_grid.is_hovered(mouse) {
-            app_state.grid_mut().set_grid([[0; 9]; 9]);
-            app_state.grid_mut().set_grid_ori([[false; 9]; 9]);
+            app_state.clear_grid();
+            app_state.clear_grid_ori();
             app_state.set_click_on_file(false);
         }
         if self.back.is_hovered(mouse) {
