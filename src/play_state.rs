@@ -68,7 +68,7 @@ impl Play {
         self.numbers.fill_vector();
     }
 
-    fn parse_file(&mut self,
+    pub fn parse_file(&mut self,
                   app_state: &mut AppState) {
         let file_name = format!("sudoku_not_resolved/sudoku_{}.txt", app_state.sudoku_counter());
         if let Ok(grid) = read_file_play(file_name) {
@@ -98,6 +98,7 @@ impl Play {
             self.set_life(3);
             self.set_score(0);
             app_state.clear_selected_cell();
+            app_state.clear_grid();
         }
         if self.new_sudoku.is_hovered(mouse) {
             self.parse_file(app_state);
