@@ -202,7 +202,7 @@ impl Play {
         solver::is_valid(&mut grid, 0);
        for i in 0..8 {
            for y in 0..8 {
-               if (app_state.grid_mut().grid[i][y] != grid.grid[i][y]) {
+               if app_state.grid_mut().grid[i][y] != grid.grid[i][y] {
                    return false
                }
            }

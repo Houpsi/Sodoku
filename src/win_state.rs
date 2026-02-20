@@ -1,7 +1,6 @@
-use std::{fs, io};
+use std::{io};
 use std::fs::{File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
-use std::os::linux::raw::blkcnt_t;
 use piston_window::{image, line, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, Key, PistonWindow, Texture, TextureSettings, Transformed, Window};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
@@ -45,7 +44,7 @@ pub struct Win {
 
 impl Win {
     pub fn new(window: &mut PistonWindow)-> Self {
-        let btn_y  = (WINDOW_H / 2.0);
+        let btn_y  = WINDOW_H / 2.0;
         let btn_w  = 80.0;
         let btn_h  = 36.0;
         let center = WINDOW_W / 2.0 - 160.0;
