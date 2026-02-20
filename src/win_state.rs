@@ -128,11 +128,11 @@ impl Win {
         let transform = c.transform
             .trans((WINDOW_W / 2.0) - 226.5, WINDOW_H / 5.0);
         image(&self.texture_win, transform, g);
-        self.retry.draw(c, g, glyphs, self.retry.is_hovered(app_state.get_mousse_pos()), 18);
-        self.menu.draw(c, g, glyphs, self.menu.is_hovered(app_state.get_mousse_pos()), 18);
-        self.quit.draw(c, g, glyphs, self.quit.is_hovered(app_state.get_mousse_pos()), 18);
+        self.retry.draw(c, g, glyphs, self.retry.is_hovered(app_state.get_mouse_pos()), 18);
+        self.menu.draw(c, g, glyphs, self.menu.is_hovered(app_state.get_mouse_pos()), 18);
+        self.quit.draw(c, g, glyphs, self.quit.is_hovered(app_state.get_mouse_pos()), 18);
 
-        self.draw_username_input(c, g, glyphs, app_state.get_mousse_pos());
+        self.draw_username_input(c, g, glyphs, app_state.get_mouse_pos());
         self.display_leader_board(c, g, glyphs);
     }
 

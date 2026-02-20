@@ -62,7 +62,7 @@ pub fn init_window() {
         e.mouse_cursor(|pos| app_state.set_mousse_pos(pos));
 
         if let Some(Button::Mouse(_)) = e.press_args() {
-            let mouse = app_state.get_mousse_pos();
+            let mouse = app_state.get_mouse_pos();
 
             match state {
                 State::Menu => {

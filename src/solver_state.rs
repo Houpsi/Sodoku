@@ -53,10 +53,10 @@ impl Solver {
         g: &mut G2d,
         glyphs: &mut Glyphs,
     ) {
-        self.choose_file.draw(c, g, glyphs, self.choose_file.is_hovered(app_state.get_mousse_pos()), 18);
-        self.solver.draw(c, g, glyphs, self.solver.is_hovered(app_state.get_mousse_pos()), 18);
-        self.clear_grid.draw(c, g, glyphs, self.clear_grid.is_hovered(app_state.get_mousse_pos()), 18);
-        self.back.draw(c, g, glyphs, self.back.is_hovered(app_state.get_mousse_pos()), 18);
+        self.choose_file.draw(c, g, glyphs, self.choose_file.is_hovered(app_state.get_mouse_pos()), 18);
+        self.solver.draw(c, g, glyphs, self.solver.is_hovered(app_state.get_mouse_pos()), 18);
+        self.clear_grid.draw(c, g, glyphs, self.clear_grid.is_hovered(app_state.get_mouse_pos()), 18);
+        self.back.draw(c, g, glyphs, self.back.is_hovered(app_state.get_mouse_pos()), 18);
     }
 }
 

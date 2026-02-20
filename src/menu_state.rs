@@ -39,8 +39,8 @@ impl Menu {
                               glyphs: &mut Glyphs,
     ) {
         crate::display::draw_title(&c, g, glyphs);
-        self.chose_play.draw(&c, g, glyphs, self.chose_play.is_hovered(app_state.get_mousse_pos()), 18);
-        self.chose_solver.draw(&c, g, glyphs, self.chose_solver.is_hovered(app_state.get_mousse_pos()), 18);
+        self.chose_play.draw(&c, g, glyphs, self.chose_play.is_hovered(app_state.get_mouse_pos()), 18);
+        self.chose_solver.draw(&c, g, glyphs, self.chose_solver.is_hovered(app_state.get_mouse_pos()), 18);
     }
 }
 

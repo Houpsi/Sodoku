@@ -138,10 +138,10 @@ impl Play {
             g,
         );
         for i in 0..9 {
-            self.numbers.vector[i].draw(c, g, glyphs, self.numbers.vector[i].is_hovered(app_state.get_mousse_pos()), 20);
+            self.numbers.vector[i].draw(c, g, glyphs, self.numbers.vector[i].is_hovered(app_state.get_mouse_pos()), 20);
         }
-        self.new_sudoku.draw(c, g, glyphs, self.new_sudoku.is_hovered(app_state.get_mousse_pos()), 18);
-        self.back.draw(c, g, glyphs, self.back.is_hovered(app_state.get_mousse_pos()), 18);
+        self.new_sudoku.draw(c, g, glyphs, self.new_sudoku.is_hovered(app_state.get_mouse_pos()), 18);
+        self.back.draw(c, g, glyphs, self.back.is_hovered(app_state.get_mouse_pos()), 18);
         let score_str = self.score.to_string();
         text::Text::new_color([0.15, 0.15, 0.2, 1.0], 24)
             .draw(

@@ -22,7 +22,7 @@ impl AppState {
         }
     }
 
-    pub fn get_mousse_pos(&self)-> [f64; 2] {
+    pub fn get_mouse_pos(&self) -> [f64; 2] {
         self.mouse_pos
     }
     pub fn get_grid(&self)-> &Grid {

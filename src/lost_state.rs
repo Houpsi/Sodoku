@@ -50,8 +50,8 @@ impl Lost {
         let transform = c.transform
             .trans((WINDOW_W / 2.0) - 246.0, WINDOW_H / 5.0);
         image(&self.texture_game_over, transform, g);
-        self.retry.draw(c, g, glyphs, self.retry.is_hovered(app_state.get_mousse_pos()), 18);
-        self.menu.draw(c, g, glyphs, self.menu.is_hovered(app_state.get_mousse_pos()), 18);
-        self.quit.draw(c, g, glyphs, self.quit.is_hovered(app_state.get_mousse_pos()), 18);
+        self.retry.draw(c, g, glyphs, self.retry.is_hovered(app_state.get_mouse_pos()), 18);
+        self.menu.draw(c, g, glyphs, self.menu.is_hovered(app_state.get_mouse_pos()), 18);
+        self.quit.draw(c, g, glyphs, self.quit.is_hovered(app_state.get_mouse_pos()), 18);
     }
 }
