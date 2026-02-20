@@ -65,7 +65,8 @@ impl Win {
                             mouse: [f64; 2],
                             state: &mut State,
                             window: &mut PistonWindow,
-                            play: &mut Play
+                            play: &mut Play,
+                            app_state: &mut AppState
     ) {
         if Self::point_in_rect(mouse, INPUT_X, INPUT_Y, INPUT_W, INPUT_H) {
             self.input_active = true;
@@ -87,6 +88,8 @@ impl Win {
             *state = State::Play;
             play.set_life(3);
             play.set_score(3);
+            app_state.set_sudoku_counter(app_state.sudoku_counter() - 1);
+            play.parse_file(app_state)
         }
         if self.menu.is_hovered(mouse) {
             *state = State::Menu
