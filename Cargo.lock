@@ -3,16 +3,6 @@
 version = 4
 
 [[package]]
-name = "Sudoku-solveur"
-version = "0.1.0"
-dependencies = [
- "grid",
- "log",
- "piston_window",
- "rfd",
-]
-
-[[package]]
 name = "ab_glyph"
 version = "0.2.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -906,12 +896,6 @@ checksum = "ef89398e90033fc6bc65e9bd42fd29bbbfd483bda5b56dc5562f455550618165"
 dependencies = [
  "gl_generator 0.14.0",
 ]
-
-[[package]]
-name = "grid"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9e2d4c0a8296178d8802098410ca05d86b17a10bb5ab559b3fb404c1f948220"
 
 [[package]]
 name = "half"
@@ -2086,6 +2070,14 @@ name = "strict-num"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6637bab7722d379c8b41ba849228d680cc12d0a45ba1fa2b48f2a30577a06731"
+
+[[package]]
+name = "sudoku-solver"
+version = "0.1.0"
+dependencies = [
+ "piston_window",
+ "rfd",
+]
 
 [[package]]
 name = "syn"
