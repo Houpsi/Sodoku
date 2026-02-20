@@ -1,10 +1,12 @@
 [package]
-name = "Sudoku-solveur"
+name = "sudoku-solver"
 version = "0.1.0"
 edition = "2024"
+description = "A Sudoku game and solver built with Rust and Piston Window"
+authors = ["Hélène Houplain <helene.houplain@epitech.eu>"]
+repository = "https://github.com/Houpsi/Sodoku"
+readme = "README.md"
 
 [dependencies]
-grid = "1.0.0"
-log = "0.4.29"
 piston_window = "0.131.0"
 rfd = "0.16.0"
