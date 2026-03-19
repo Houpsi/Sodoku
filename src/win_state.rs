@@ -139,6 +139,7 @@ impl Win {
     fn display_leader_board(&self, c: &Context, g: &mut G2d, glyphs: &mut Glyphs) {
         let rows    = self.leader_board.len().min(10);
         let panel_h = 30.0 + rows as f64 * LB_ROW_H + 10.0;
+        let mut vec_score: Vec<(&String, &u32)> = Vec::new();
 
         rectangle(LB_BG,    [LB_X - 10.0, LB_Y - 10.0, LB_W + 20.0, panel_h], c.transform, g);
         rectangle(LB_HEADER,[LB_X - 10.0, LB_Y - 10.0, 4.0, panel_h], c.transform, g);
@@ -148,8 +149,12 @@ impl Win {
                   c.transform.trans(LB_X + 4.0, LB_Y + 8.0), g).unwrap();
 
         line(LB_DIVIDER, 1.0, [LB_X - 10.0, LB_Y + 14.0, LB_X + LB_W + 10.0, LB_Y + 14.0], c.transform, g);
-
         for (i, (name, score)) in self.leader_board.iter().take(10).enumerate() {
+            vec_score.push((name, score));
+        }
+        vec_score.sort_by(|a, b| b.1.cmp(a.1));
+
+        for (i, (name, score)) in vec_score.iter().enumerate() {
             let row_y = LB_Y + 28.0 + i as f64 * LB_ROW_H;
 
             if i % 2 == 0 {
@@ -159,13 +164,11 @@ impl Win {
 
             let rank_color = match i { 0 => LB_GOLD, 1 => LB_SILVER, 2 => LB_BRONZE, _ => LB_TEXT };
             let rank_str   = format!("{}.", i + 1);
-
             text::Text::new_color(rank_color, 13)
                 .draw(&rank_str, glyphs, &c.draw_state, c.transform.trans(LB_X, row_y), g).unwrap();
 
-            let name_display = if name.len() > 12 { format!("{}...", &name[..11]) } else { name.clone() };
             text::Text::new_color(LB_TEXT, 13)
-                .draw(&name_display, glyphs, &c.draw_state, c.transform.trans(LB_X + 28.0, row_y), g).unwrap();
+                .draw(&name, glyphs, &c.draw_state, c.transform.trans(LB_X + 28.0, row_y), g).unwrap();
 
             let score_str = score.to_string();
             let score_x   = LB_X + LB_W - score_str.len() as f64 * 8.0;
