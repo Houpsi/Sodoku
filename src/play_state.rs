@@ -1,3 +1,4 @@
+use std::time::Instant;
 use piston_window::{image, rectangle, text, Context, Flip, G2d, G2dTexture, Glyphs, PistonWindow, Texture, TextureSettings, Transformed};
 use crate::app_state::AppState;
 use crate::button::ButtonRect;
@@ -39,6 +40,7 @@ pub struct Play {
     numbers: Number,
     texture_lives: G2dTexture,
     score: u32,
+    start_time: Instant,
 }
 
 impl Play {
@@ -50,6 +52,7 @@ impl Play {
             numbers: Number::new(),
             texture_lives: Texture::from_path(&mut window.create_texture_context(), "assets/images/life.png", Flip::None, &TextureSettings::new(), ).expect("Download failed : life"),
             score: 0,
+            start_time: Instant::now(),
         }
     }
 
@@ -187,7 +190,9 @@ impl Play {
                     continue;
                 }
                 if app_state.get_grid().grid[y][x] == 0 {
-                    self.score += 100;
+                    let elapsed = self.start_time.elapsed().as_secs();
+                    let time_bonus = (300u64.saturating_sub(elapsed)) as u32;
+                    self.score += 100 + time_bonus;
                     app_state
                         .grid_mut()
                         .add_to_grid(y, x, value as u32);
